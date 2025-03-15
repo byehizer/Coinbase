@@ -4,13 +4,15 @@ import viteLogo from '/vite.svg'
 import { Navbar } from './components/Navbar/Navbar'
 import { AiOutlineSearch } from "react-icons/ai";
 import { SearchBar } from './components/Navbar/components/Searchbar';
+import { ShoppingCartProvider } from './context/shoppingcartcontext';
 function App() {
   const [count, setCount] = useState(0)
 
   return (
     <>
-      <Navbar></Navbar>
-      
+      <ShoppingCartProvider>
+        <Navbar></Navbar>
+      </ShoppingCartProvider>
     </>
   )
 }

@@ -1,14 +1,18 @@
 import { useState } from "react";
-import { AiOutlineSearch } from "react-icons/ai";
+import { AiOutlineSearch, AiOutlineShopping } from "react-icons/ai";
 import { SearchBar } from "./components/Searchbar";
+import { useShoppingCart } from "../../context/shoppingcartcontext";
+import { ShoppingCart } from "./components/Shoppingcart";
 
 export function Navbar() {
+  const [showCart, setShowCart] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const { products } = useShoppingCart();
   return (
     <header className="bg-white dark:bg-gray-900">
       <div className="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
-          <div className="md:flex md:items-center md:gap-12 flex-shrink-0">
+        <div className="relative flex h-16 items-center justify-between">
+          <div className="md:flex items-center md:gap-12 flex-shrink-0">
             <a className="block text-teal-600 dark:text-teal-600" href="#">
               <span className="sr-only">Home</span>
               <svg className="h-8" viewBox="0 0 28 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -21,8 +25,22 @@ export function Navbar() {
           </div>
 
 
+
           <div className="flex items-center md:gap-10 justify-center md:flex-grow gap-6">
             <SearchBar></SearchBar>
+            <div className="md:absolute right-4 ">
+              <button className="hover:bg-slate-200/20 rounded-full p-2 text-white flex items-center gap-1" onClick={() => setShowCart(!showCart)}>
+                <AiOutlineShopping className="text-2xl" />
+                <div className="bg-white p-1 text-xs text-gray-900 w-6 h-6 rounded-[50%]">
+                  <span>{products.length}</span>
+                </div>
+              </button>
+            </div>
+            {showCart && (
+              <div className="absolute top-12 right-0 w-max">
+                <ShoppingCart></ShoppingCart>
+              </div>
+            )}
             <div className="hidden md:block">
               <nav aria-label="Global">
                 <ul className="flex items-center gap-10 text-sm">
