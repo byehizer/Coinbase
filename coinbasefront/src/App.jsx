@@ -3,7 +3,9 @@ import reactLogo from './assets/react.svg';
 import viteLogo from '/vite.svg';
 import { Navbar } from './components/Navbar';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import { appRoutes } from './routes/routes';
+import { appRoutesAdmin, appRoutesAdminAddProduct } from './routes/routes';
+import { ModalProvider } from './context/ModalContext';
+
 
 function App() {
   const [count, setCount] = useState(0)
@@ -11,13 +13,17 @@ function App() {
   return (
     <>
       <BrowserRouter>
-        <Navbar></Navbar>
-        <Routes>
-          {appRoutes.map(route => (
-            <Route key={route.name} path={route.path} element={route.element} />
-          ))}
-        </Routes>
-
+        <ModalProvider>
+          <Navbar></Navbar>
+          <Routes>
+            {appRoutesAdmin.map(route => (
+              <Route key={route.name} path={route.path} element={route.element} />
+            ))}
+            {appRoutesAdminAddProduct.map(route => (
+              <Route key={route.name} path={route.path} element={route.element} />
+            ))}
+          </Routes>
+        </ModalProvider>
       </BrowserRouter>
     </>
   )
