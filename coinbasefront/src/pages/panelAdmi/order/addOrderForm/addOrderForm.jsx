@@ -57,7 +57,6 @@ export function AddOrdersForm() {
                         />
                     </div>
 
-
                     <div className="mb-4">
                         <label className="block text-sm font-medium text-gray-700">Order Date</label>
                         <input
@@ -69,7 +68,6 @@ export function AddOrdersForm() {
                             required
                         />
                     </div>
-
 
                     <div className="mb-4">
                         <label className="block text-sm font-medium text-gray-700">Total</label>
