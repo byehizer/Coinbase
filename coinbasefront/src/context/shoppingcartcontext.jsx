@@ -35,11 +35,19 @@ export const ShoppingCartProvider = ({ children }) => {
         });
     }, []);
 
+    const updateProductQuantity = (productId, quantity) => {
+        setProducts((prev) =>
+            prev.map((product) =>
+                product.id === productId ? { ...product, quantity } : product
+            )
+        );
+    };
+
     const clearShoppingCart = useCallback(() => setProducts([]), []);
 
     return (
         <ShoppingCartContext.Provider
-            value={{ products, totalAmount, addProduct, removeProduct, clearShoppingCart }}
+            value={{ products, totalAmount, addProduct, removeProduct, clearShoppingCart, updateProductQuantity }}
         >
             {children}
         </ShoppingCartContext.Provider>

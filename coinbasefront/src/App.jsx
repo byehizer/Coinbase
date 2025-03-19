@@ -5,13 +5,15 @@ import { Navbar } from './components/Navbar/Navbar'
 import { AiOutlineSearch } from "react-icons/ai";
 import { SearchBar } from './components/Navbar/components/Searchbar';
 import { ShoppingCartProvider } from './context/shoppingcartcontext';
+import { Home } from './pages/home';
 function App() {
   const [count, setCount] = useState(0)
 
   return (
     <>
       <ShoppingCartProvider>
-        <Navbar></Navbar>
+        <Navbar/>
+        <Home/>
       </ShoppingCartProvider>
     </>
   )
