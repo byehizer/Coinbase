@@ -9,7 +9,6 @@ import { AiOutlineSearch } from "react-icons/ai";
 import { SearchBar } from './components/Navbar/components/Searchbar';
 import { ShoppingCartProvider } from './context/shoppingcartcontext';
 import { Navbar } from './components/Navbar/Navbar';
-
 import { Home } from './pages/home';
 function App() {
   const [count, setCount] = useState(0)
