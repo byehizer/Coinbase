@@ -10,6 +10,8 @@ import { SearchBar } from './components/Navbar/components/Searchbar';
 import { ShoppingCartProvider } from './context/shoppingcartcontext';
 import { Navbar } from './components/Navbar/Navbar';
 import { Home } from './pages/home';
+import { ProductDetail } from './pages/productdetail';
+
 function App() {
   const [count, setCount] = useState(0)
 
@@ -27,6 +29,7 @@ function App() {
                 <Route key={route.name} path={route.path} element={route.element} />
               ))}
               <Route path="/" element={<Home />} />
+              <Route path="/product/:id" element={<ProductDetail/>} />
             </Routes>
           </ShoppingCartProvider>
         </ModalProvider>

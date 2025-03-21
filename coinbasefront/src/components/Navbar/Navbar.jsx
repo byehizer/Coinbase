@@ -9,7 +9,7 @@ export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const { products } = useShoppingCart();
   return (
-    <header className="bg-white dark:bg-gray-900">
+    <header className="relative bg-white dark:bg-gray-900">
       <div className="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8">
         <div className="relative flex h-16 items-center justify-between">
           <div className="md:flex items-center md:gap-12 flex-shrink-0">
@@ -28,7 +28,7 @@ export function Navbar() {
 
           <div className="flex items-center md:gap-10 justify-center md:flex-grow gap-6">
             <SearchBar></SearchBar>
-            <div className="md:absolute right-4 ">
+            <div className="md:absolute right-0 ">
               <button className="hover:bg-slate-200/20 rounded-full p-2 text-white flex items-center gap-1" onClick={() => setShowCart(!showCart)}>
                 <AiOutlineShopping className="text-2xl" />
                 <div className="bg-white p-1 text-xs text-gray-900 w-6 h-6 rounded-[50%]">
@@ -37,7 +37,7 @@ export function Navbar() {
               </button>
             </div>
             {showCart && (
-              <div className="absolute top-12 right-0 w-max">
+              <div className="absolute top-12 right-0 w-max z-50">
                 <ShoppingCart></ShoppingCart>
               </div>
             )}
