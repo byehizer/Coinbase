@@ -47,8 +47,8 @@ export function CardProduct({ product }) {
                         <button
                             className="bg-indigo-600 hover:bg-indigo-800 text-slate-200 mt-auto font-medium border rounded-lg px-4 py-2"
                             onClick={(e) => {
-                                e.stopPropagation(); // Evita la navegación cuando se hace clic en el botón
-                                addProduct({ ...product, quantity: 1 });
+                                e.stopPropagation();
+                                addProduct({ ...product });
                             }}
                         >
                             Agregar al carrito

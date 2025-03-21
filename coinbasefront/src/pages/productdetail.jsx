@@ -8,10 +8,30 @@ export function ProductDetail() {
     const { id } = useParams();
     const product = location.state?.product;
     const [modal, setModal] = useState(true);
+    const [quantity, setQuantity] = useState(1);
     const { products, addProduct, updateProductQuantity, removeProduct } = useShoppingCart();
+
+    const increaseQuantity = () => {
+        setQuantity((prev) => prev + 1);
+    };
+
+    const decreaseQuantity = () => {
+        setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
+    };
 
     const toggleModal = () => {
         setModal((prev) => !prev);
+    };
+    const handleAddToCart = () => {
+        const existingProduct = products.find(p => p.id === product.id);
+
+        if (existingProduct) {
+            updateProductQuantity(product.id, existingProduct.quantity + quantity);
+        } else {
+            addProduct({ ...product });
+            updateProductQuantity(product.id, quantity)
+        }
+        setQuantity(1)
     };
 
     if (!product) {
@@ -21,9 +41,9 @@ export function ProductDetail() {
     return (
         <div className="main-wrapper flex flex-col md:flex-row md:px-[200px] md:py-[100px] relative">
             <div className="image md:basis-1/2 md:flex md:flex-col md:justify-between">
-                <div className="hidden md:block large-image shadow-2xl">
+                <div className="hidden md:block large-image ">
                     <img
-                        className="cursor-pointer rounded-xl w-[400px] h-[400px] object-contain "
+                        className="cursor-pointer rounded-xl w-[400px] h-[400px] object-contain shadow-2xl"
                         src={product.image}
                         alt={product.name}
                         onClick={toggleModal}
@@ -39,7 +59,7 @@ export function ProductDetail() {
             </div>
             <div
                 className={`${modal ? "hidden" : "hidden md:block"
-                    } absolute -top-[20%] right-0 -bottom-[20%] left-0 bg-lightBlack`}
+                    } absolute -top-[20%] right-0 -bottom-[20%] left-0 bg-lightBlack z-50`}
             >
                 <div
                     className={
@@ -75,19 +95,22 @@ export function ProductDetail() {
                 <div className="buttons-container flex flex-col md:flex-row mt-8">
                     <div className="state w-[100%] flex justify-around md:justify-center items-center space-x-10 bg-lightGrayishBlue rounded-lg p-3 md:p-2 md:mr-4 md:w-[150px]">
                         <button
-
+                            onClick={decreaseQuantity}
                             className="minus text-[24px] md:text-[2rem] font-[700] text-orange transition-all hover:opacity-50"
                         >
                             -
                         </button>
-                        <p className="md:text-[1.5rem] font-bold">0</p>
+                        <p className="md:text-[1.5rem] font-bold">{quantity}</p>
                         <button
                             className="plus text-[24px] md:text-[2rem] font-[700] text-orange transition-all hover:opacity-50"
+                            onClick={increaseQuantity}
                         >
                             +
                         </button>
                     </div>
-                    <button className="add-btn border-none bg-orange rounded-lg text-white font-[700] px-[70px] py-[18px] mt-4   md:text-[14px] transition-all btn-shadow hover:opacity-50">
+                    <button
+                        onClick={handleAddToCart}
+                        className="add-btn border-none bg-orange rounded-lg text-white font-[700] px-[70px] py-[18px] mt-4   md:text-[14px] transition-all btn-shadow hover:opacity-50">
                         Add to cart
                     </button>
                 </div>
