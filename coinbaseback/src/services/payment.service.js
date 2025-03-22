@@ -30,6 +30,14 @@ export class PaymentService {
         });
     }
 
+
+    static async update(id_payment, { method, status, receipt }) {
+        return prisma.payment.update({
+            where: { id_payment },
+            data: { method, status, receipt }
+        });
+    }
+
     static async delete(id_payment) {
         return prisma.payment.delete({
             where: {

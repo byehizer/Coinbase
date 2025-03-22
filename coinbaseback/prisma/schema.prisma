@@ -1,0 +1,111 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+
+model Delivery {
+  id          Int      @id @default(autoincrement())
+  address     String
+  city        String
+  country     String
+  status      DeliveryStatus @default(pendiente)
+  Order       Order[]
+}
+
+model Payment {
+  id        Int             @id @default(autoincrement())
+  method    PaymentMethod
+  status    PaymentStatus   @default(pendiente)
+  receipt   String?
+  Order     Order[]
+}
+
+model Product {
+  id           Int      @id @default(autoincrement())
+  name         String
+  description  String?
+  year         Int
+  country_origin String
+  price        Decimal   @db.Decimal(10, 2)
+  stock        Int
+  image_url    String?
+  OrderDetail  OrderDetail[]
+}
+
+model Order {
+  id          Int       @id @default(autoincrement())
+  client_name String
+  client_email String
+  order_date  DateTime  @default(now())
+  total       Decimal   @db.Decimal(10, 2)
+  status      OrderStatus @default(pendiente)
+  id_payment  Int?
+  id_delivery Int?
+  payment     Payment?  @relation(fields: [id_payment], references: [id])
+  delivery    Delivery? @relation(fields: [id_delivery], references: [id])
+  OrderDetail OrderDetail[]
+}
+
+model OrderDetail {
+  id_order_detail Int      @id @default(autoincrement())
+  id_order        Int
+  id_product      Int
+  quantity        Int
+  price_unit      Decimal   @db.Decimal(10, 2)
+  order           Order     @relation(fields: [id_order], references: [id])
+  product         Product   @relation(fields: [id_product], references: [id])
+}
+
+model User {
+  id_user   Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      UserRole @default(admin)
+}
+
+enum DeliveryStatus {
+  pendiente
+  en_transito
+  entregado
+}
+
+enum PaymentMethod {
+  PayPal
+  Venmo
+  Zelle
+  Tarjeta_Credito
+  Tarjeta_Debito
+  Apple_Pay
+  Google_Pay
+  Cripto
+}
+
+enum PaymentStatus {
+  pendiente
+  aprobado
+  rechazado
+}
+
+enum OrderStatus {
+  pendiente
+  pagado
+  enviado
+  entregado
+}
+
+enum UserRole {
+  admin
+}

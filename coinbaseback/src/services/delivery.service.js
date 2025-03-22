@@ -23,10 +23,28 @@ export class DeliveryService {
     }
 
 
+    static async update(id, { address, city, country, status }) {
+        return prisma.delivery.update({
+            where: { id_delivery: id },
+            data: {
+                address,
+                city,
+                country,
+                status,
+            },
+        });
+    }
+
     static async updateStatus(id, status) {
         return prisma.delivery.update({
             where: { id_delivery: id },
             data: { status },
+        });
+    }
+
+    static async delete(id) {
+        return prisma.delivery.delete({
+            where: { id_delivery: id },
         });
     }
 }

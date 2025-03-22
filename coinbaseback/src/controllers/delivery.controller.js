@@ -82,4 +82,26 @@ export class DeliveryController {
             });
         }
     }
+
+
+    static async delete(req, res) {
+        const { id_delivery } = req.params;
+
+        try {
+            const deletedDelivery = await DeliveryService.delete(Number(id_delivery));
+
+            if (!deletedDelivery) {
+                return res.status(404).json({ error: "Delivery not found" });
+            }
+
+            res.json({
+                message: "Delivery deleted successfully",
+            });
+        } catch (error) {
+            res.status(500).json({
+                error: "There was an error deleting the delivery",
+                details: error.message,
+            });
+        }
+    }
 }

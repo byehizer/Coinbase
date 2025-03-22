@@ -82,6 +82,31 @@ export class PaymentController {
         }
     }
 
+
+
+    static async update(req, res) {
+        const { id_payment } = req.params;
+        const { method, status, receipt } = req.body;
+
+        try {
+            const updatedPayment = await PaymentService.update(id_payment, {
+                method,
+                status,
+                receipt
+            });
+
+            res.json({
+                message: "Payment updated successfully",
+                payment: updatedPayment,
+            });
+        } catch (error) {
+            res.status(500).json({
+                error: "There was an error updating the payment",
+                details: error.message,
+            });
+        }
+    }
+
     
     static async delete(req, res) {
         const { id_payment } = req.params;
