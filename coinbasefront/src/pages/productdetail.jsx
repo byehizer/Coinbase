@@ -41,9 +41,9 @@ export function ProductDetail() {
     return (
         <div className="main-wrapper flex flex-col md:flex-row md:px-[200px] md:py-[100px] relative">
             <div className="image md:basis-1/2 md:flex md:flex-col md:justify-between">
-                <div className="hidden md:block large-image ">
+                <div className="hidden md:block large-image xl:pl-32">
                     <img
-                        className="cursor-pointer rounded-xl w-[400px] h-[400px] object-contain shadow-2xl"
+                        className="cursor-pointer rounded-xl w-[400px] h-[400px] object-contain shadow-2xl "
                         src={product.image}
                         alt={product.name}
                         onClick={toggleModal}
