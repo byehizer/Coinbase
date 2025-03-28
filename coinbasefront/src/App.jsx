@@ -11,32 +11,34 @@ import { ShoppingCartProvider } from './context/shoppingcartcontext';
 import { Navbar } from './components/Navbar/Navbar';
 import { Home } from './pages/home';
 import { ProductDetail } from './pages/productdetail';
+import { Footer } from './components/footer'
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <BrowserRouter>
-        <ModalProvider>
-          <ShoppingCartProvider>
-            <Navbar></Navbar>
-            <Routes>
-              {appRoutesAdmin.map(route => (
-                <Route key={route.name} path={route.path} element={route.element} />
-              ))}
-              {appRoutesAdminAddProduct.map(route => (
-                <Route key={route.name} path={route.path} element={route.element} />
-              ))}
-              <Route path="/" element={<Home />} />
-              <Route path="/product/:id" element={<ProductDetail/>} />
-            </Routes>
-          </ShoppingCartProvider>
-        </ModalProvider>
-      </BrowserRouter>
-
-    </>
-  )
+    <BrowserRouter>
+      <ModalProvider>
+        <ShoppingCartProvider>
+          <div className='flex flex-col min-h-screen'>
+            <Navbar />
+            <main className="flex-grow">
+              <Routes>
+                {appRoutesAdmin.map(route => (
+                  <Route key={route.name} path={route.path} element={route.element} />
+                ))}
+                {appRoutesAdminAddProduct.map(route => (
+                  <Route key={route.name} path={route.path} element={route.element} />
+                ))}
+                <Route path="/" element={<Home />} />
+                <Route path="/product/:id" element={<ProductDetail />} />
+              </Routes>
+            </main>
+            <Footer />
+          </div> 
+        </ShoppingCartProvider>
+      </ModalProvider>
+    </BrowserRouter>
+  );
 }
+
 
 export default App

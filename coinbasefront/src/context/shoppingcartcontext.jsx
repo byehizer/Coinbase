@@ -4,8 +4,8 @@ export const ShoppingCartContext = createContext({
     products: [],
     totalAmount: 0,
     addProduct: () => { },
-    removeProduct: () => { },
     clearShoppingCart: () => { },
+    removeProductCompletely: () => { },
 });
 
 export const ShoppingCartProvider = ({ children }) => {
@@ -14,6 +14,12 @@ export const ShoppingCartProvider = ({ children }) => {
     const totalAmount = useMemo(() => {
         return products.reduce((total, product) => total + product.price * product.quantity, 0);
     }, [products]);
+
+    const removeProductCompletely = useCallback((productId) => {  // Nueva función
+        setProducts((prevProducts) => {
+            return prevProducts.filter((product) => product.id !== productId);
+        });
+    }, []);
 
     const addProduct = useCallback((product) => {
         setProducts((prevProducts) => {
@@ -27,13 +33,6 @@ export const ShoppingCartProvider = ({ children }) => {
         });
     }, []);
 
-    const removeProduct = useCallback((productId) => {
-        setProducts((prevProducts) => {
-            return prevProducts
-                .map((p) => (p.id === productId ? { ...p, quantity: p.quantity - 1 } : p))
-                .filter((p) => p.quantity > 0);
-        });
-    }, []);
 
     const updateProductQuantity = (productId, quantity) => {
         setProducts((prev) =>
@@ -47,7 +46,7 @@ export const ShoppingCartProvider = ({ children }) => {
 
     return (
         <ShoppingCartContext.Provider
-            value={{ products, totalAmount, addProduct, removeProduct, clearShoppingCart, updateProductQuantity }}
+            value={{ products, totalAmount, addProduct, clearShoppingCart, updateProductQuantity, removeProductCompletely }}
         >
             {children}
         </ShoppingCartContext.Provider>

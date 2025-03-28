@@ -2,13 +2,13 @@ import { useShoppingCart } from "../context/shoppingcartcontext";
 import { useNavigate } from "react-router-dom";
 
 export function CardProduct({ product }) {
-    const { products, addProduct, updateProductQuantity, removeProduct } = useShoppingCart();
+    const { products, addProduct, updateProductQuantity, removeProductCompletely } = useShoppingCart();
     const navigate = useNavigate();
 
     const cartProduct = products.find((p) => p.id === product.id);
 
     return (
-        <div className="overflow-hidden cursor-pointer" onClick={() => navigate(`/product/${product.id}`, { state: { product } })}>
+        <div className="cursor-pointer" onClick={() => navigate(`/product/${product.id}`, { state: { product } })}>
             <div
                 className="rounded-lg border bg-gray-400/10 flex flex-col h-full transform transition-transform duration-300 hover:scale-105"
                 style={{ transformOrigin: "center" }}
@@ -30,7 +30,7 @@ export function CardProduct({ product }) {
                                 onClick={() => {
                                     cartProduct.quantity > 1
                                         ? updateProductQuantity(product.id, cartProduct.quantity - 1)
-                                        : removeProduct(product.id);
+                                        : removeProductCompletely(product.id);
                                 }}
                             >
                                 -
