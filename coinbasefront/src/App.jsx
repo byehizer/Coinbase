@@ -12,6 +12,7 @@ import { Navbar } from './components/Navbar/Navbar';
 import { Home } from './pages/home';
 import { ProductDetail } from './pages/productdetail';
 import { Footer } from './components/footer'
+import { ShoppingCartPage } from './pages/shoppingcartpage';
 
 function App() {
   return (
@@ -30,10 +31,11 @@ function App() {
                 ))}
                 <Route path="/" element={<Home />} />
                 <Route path="/product/:id" element={<ProductDetail />} />
+                <Route path="/shopping-cart" element={<ShoppingCartPage />} />
               </Routes>
             </main>
             <Footer />
-          </div> 
+          </div>
         </ShoppingCartProvider>
       </ModalProvider>
     </BrowserRouter>

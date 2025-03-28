@@ -1,35 +1,11 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { AiOutlineSearch, AiOutlineClose } from "react-icons/ai";
+import dataProducts from "../../../data.json";
 
 export function SearchBar() {
     const [value, setValue] = useState("");
     const [isOpen, setIsOpen] = useState(false);
     const inputRef = useRef(null);
-
-    const DATA = [
-        {
-            id: 1,
-            label: "Dolar 1999"
-        },
-        {
-            id: 2,
-            label: "Euro 2000"
-        },
-        {
-            id: 3,
-            label: "Yen 1459"
-        },
-        {
-            id: 4,
-            label: "Dolar 2010"
-        },
-        {
-            id: 5,
-            label: "Dolar 2024"
-        }
-    ]
-
-
 
     useEffect(() => {
         if (value.length > 0) {
@@ -44,7 +20,7 @@ export function SearchBar() {
     }, [isOpen]);
 
     const filterdata = useMemo(() => {
-        return DATA.filter((product) => product.label.toLowerCase().includes(value.toLowerCase()));
+        return dataProducts.filter((product) => product.name.toLowerCase().includes(value.toLowerCase()));
     }, [value]);
 
     return (<div className={`relative hover:md:w-[20rem] hover:w-[10rem] h-[2rem] flex items-start justify-end group transition-all shadow-md  ${isOpen ? "md:w-[20rem] w-[10rem]" : "w-0"}`}>
@@ -64,10 +40,10 @@ export function SearchBar() {
 
         </button>
         <input ref={inputRef} type="text" placeholder="Search..." className="w-full h-full pl-2 bg-white outline-none rounded-md " value={value} onChange={(e) => setValue(e.target.value)} />
-        <div className="absolute w-full top-[100%] bg-white shadow-md flex flex-col rounded-b-md rounded-t-md">
+        <div className="absolute w-full top-[100%] bg-white shadow-md flex flex-col rounded-b-md rounded-t-md z-50">
             {
                 value.length > 0 && (filterdata.length > 0 ? (filterdata.map((product) => (
-                    <span key={product.id} className="p-2 hover:bg-slate-200 cursor-pointer" onClick={() => setValue(product.label)}>{product.label}</span>
+                    <span key={product.id} className="p-2 hover:bg-slate-200 cursor-pointer" onClick={() => setValue(product.name)}>{product.name}</span>
                 ))
                 ) : (
                     <span className="p-2">no data</span>

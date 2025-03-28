@@ -1,11 +1,16 @@
 import { useShoppingCart } from "../../../context/shoppingcartcontext";
 import { AiOutlineDelete } from "react-icons/ai"
 import EmptyShoppingCart from "./EmptyShoppingcart";
+import { useNavigate } from "react-router-dom";
+
+
 
 
 export function ShoppingCart() {
     const { products, removeProduct, totalAmount, clearShoppingCart, updateProductQuantity, removeProductCompletely } =
         useShoppingCart();
+
+    const navigate = useNavigate();
 
     if (products.length === 0) return <EmptyShoppingCart />;
 
@@ -57,13 +62,19 @@ export function ShoppingCart() {
             </div>
             <div className="flex justify-between pt-2 border-t">
                 <span className="font-medium text-xl">Total:</span>
-                <span className="font-medium text-xl">$ {totalAmount}</span>
+                <span className="font-medium text-xl">$ {totalAmount.toFixed(2)}</span>
             </div>
             <button
                 className="w-full bg-gray-900 text-white px-4 py-2 mt-2 rounded-lg hover:bg-gray-800"
                 onClick={clearShoppingCart}
             >
                 Vaciar carrito
+            </button>
+            <button
+                className="w-full bg-blue-600 text-white px-4 py-2 mt-2 rounded-lg hover:bg-blue-500"
+                onClick={() => navigate('/shopping-cart')}
+            >
+                Ir al carrito
             </button>
         </div>
     );
