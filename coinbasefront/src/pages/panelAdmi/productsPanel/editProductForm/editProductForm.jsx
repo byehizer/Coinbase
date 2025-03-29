@@ -1,7 +1,15 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useModal } from "../../../../context/ModalContext";
+import { toast } from "react-toastify";
 
-export function editProductForm() {
+
+export function EditProductForm() {
+    const { openModal } = useModal();
+    const navigate = useNavigate();
+    const location = useLocation();
+    const product = location.state?.product || {}
+
     const [productData, setProductData] = useState({
         name: "",
         description: "",
@@ -12,7 +20,52 @@ export function editProductForm() {
         image_url: "",
     });
 
-    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (product) {
+            setProductData({
+                name: product.name || "",
+                description: product.description || "",
+                year: product.year ? parseInt(product.year, 10) : "", 
+                country_origin: product.country_origin || "",
+                price: product.price ? parseFloat(product.price) : "", 
+                stock: product.stock ? parseInt(product.stock, 10) : "", 
+                image_url: product.image_url || "",
+            });
+        }
+    }, [product]);
+
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        if (!productData.name || !productData.year || !productData.price || !productData.stock || !productData.country_origin) {
+            toast.error("Only description and image can be empty.");
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:5000/api/products/${product.id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                    //"Authorization": `Bearer ${token}`, Hacer el AuthContext
+                },
+                body: JSON.stringify(productData),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Error ${response.status}: ${response.statusText}`);
+            }
+
+            toast.success("Product updated successfully");
+            navigate("/admin/products");
+        } catch (error) {
+            console.error("Error updating product:", error);
+            toast.error("An error occurred while updating the product");
+        }
+    };
+
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -28,10 +81,10 @@ export function editProductForm() {
 
     return (
         <div className="flex justify-center items-center min-h-screen bg-white sm:bg-gray-100">
- 
+
             <div className="w-full max-w-lg sm:max-w-2xl bg-white p-8 shadow-md rounded-md">
                 <h2 className="text-2xl font-bold mb-6 text-center">Add New Product</h2>
-                <form>
+                <form onSubmit={handleSubmit}>
                     <div className="mb-4">
                         <label className="block text-sm font-medium text-gray-700">Name</label>
                         <input

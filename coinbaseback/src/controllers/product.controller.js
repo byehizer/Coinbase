@@ -14,10 +14,10 @@ export class ProductController {
     }
 
     static async getById(req, res) {
-        const { id_product } = req.params;
+        const { id } = req.params;
 
         try {
-            const product = await ProductService.getById(Number(id_product));
+            const product = await ProductService.getById(Number(id));
 
             if (!product) {
                 return res.status(404).json({
@@ -59,18 +59,18 @@ export class ProductController {
     }
 
     static async update(req, res) {
-        const { id_product } = req.params;
+        const id_product = parseInt(req.params.id_product, 10);
         const { name, description, year, country_origin, price, stock, image_url } = req.body;
 
         try {
             const updatedProduct = await ProductService.update(id_product, {
                 name,
                 description,
-                year,
+                year: year ? parseInt(year, 10) : undefined,
                 country_origin,
-                price,
-                stock,
-                image_url
+                price: price ? parseFloat(price) : undefined,
+                stock: stock ? parseInt(stock, 10) : undefined,
+                image_url,
             });
 
             res.json({
@@ -85,10 +85,10 @@ export class ProductController {
     }
 
     static async delete(req, res) {
-        const { id_product } = req.params;
+        const { id } = req.params;
 
         try {
-            await ProductService.delete(Number(id_product));
+            await ProductService.delete(Number(id));
 
             res.json({
                 message: "Product deleted successfully",

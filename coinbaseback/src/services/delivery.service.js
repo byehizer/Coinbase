@@ -7,7 +7,7 @@ export class DeliveryService {
 
     static async getById(id) {
         return prisma.delivery.findUnique({
-            where: { id_delivery: id },
+            where: { id },
         });
     }
 
@@ -25,7 +25,7 @@ export class DeliveryService {
 
     static async update(id, { address, city, country, status }) {
         return prisma.delivery.update({
-            where: { id_delivery: id },
+            where: { id },
             data: {
                 address,
                 city,
@@ -37,14 +37,14 @@ export class DeliveryService {
 
     static async updateStatus(id, status) {
         return prisma.delivery.update({
-            where: { id_delivery: id },
+            where: { id },
             data: { status },
         });
     }
 
     static async delete(id) {
         return prisma.delivery.delete({
-            where: { id_delivery: id },
+            where: { id },
         });
     }
 }

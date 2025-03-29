@@ -84,6 +84,48 @@ export class DeliveryController {
     }
 
 
+
+
+    static async update(req, res) {
+        const { id_delivery } = req.params;
+        const { address, city, country, status } = req.body;
+
+        if (!address || !city || !country) {
+            return res.status(400).json({
+                error: "Missing required fields: address, city, and country are required.",
+            });
+        }
+
+        const updatedData = {
+            address,
+            city,
+            country,
+            status: status || 'pending',
+        };
+
+        try {
+            const updatedDelivery = await DeliveryService.update(Number(id_delivery), updatedData);
+            
+            if (!updatedDelivery) {
+                return res.status(404).json({
+                    error: "Delivery not found",
+                });
+            }
+            res.json({
+                message: "Delivery updated successfully",
+                delivery: updatedDelivery,
+            });
+            
+        } catch (error) {
+            res.status(500).json({
+                message: `Error updating delivery: ${error.message}`,
+            });
+        }
+    }
+
+
+
+
     static async delete(req, res) {
         const { id_delivery } = req.params;
 

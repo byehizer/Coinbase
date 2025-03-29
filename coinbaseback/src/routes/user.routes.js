@@ -6,9 +6,8 @@ import { authorization } from "../middlewares/authorization.js";
 
 export const usersRouter = Router();
 
-//Chequear que las rutas coincidan con las rutas que pusimos en el front y agregar el middleware que necesite. (Por eso comento las rutas)
-/*
-usersRouter.get("/", authenticate, authorization, UsuarioController.getAll)
+//Vamos a tener que agregarle los middlewares cuando el token al iniciar sesion funcione en el frontend, porque en el backend ya esta creado
 
-usersRouter.post("/", authenticate, authorization, UsuarioController.create)
-*/
+usersRouter.get("/", /*authenticate, authorization, */UsuarioController.getAll)
+
+usersRouter.post("/",/* authenticate, authorization, */UsuarioController.create)

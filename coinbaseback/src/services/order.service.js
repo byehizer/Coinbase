@@ -5,9 +5,9 @@ export class OrderService {
         return prisma.order.findMany();
     }
 
-    static async getById(id_order) {
+    static async getById(id) {
         return prisma.order.findUnique({
-            where: { id_order }
+            where: { id }
         });
     }
 
@@ -24,17 +24,17 @@ export class OrderService {
         });
     }
 
-    static async updateStatus(id_order, status) {
+    static async updateStatus(id, status) {
         return prisma.order.update({
-            where: { id_order },
+            where: { id },
             data: { status }
         });
     }
     
 
-    static async update(id_order, { client_name, client_email, total, status, id_payment, id_delivery }) {
+    static async update(id, { client_name, client_email, total, status, id_payment, id_delivery }) {
         return prisma.order.update({
-            where: { id_order },
+            where: { id },
             data: {
                 client_name,
                 client_email,
@@ -46,9 +46,9 @@ export class OrderService {
         });
     }
 
-    static async delete(id_order) {
+    static async delete(id) {
         return prisma.order.delete({
-            where: { id_order }
+            where: { id }
         });
     }
 }

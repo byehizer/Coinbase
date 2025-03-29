@@ -5,10 +5,10 @@ export class ProductService {
         return prisma.product.findMany();
     }
 
-    static async getById(id_product) {
+    static async getById(id) {
         return prisma.product.findUnique({
             where: {
-                id_product
+                id
             }
         });
     }
@@ -27,10 +27,10 @@ export class ProductService {
         });
     }
 
-    static async update(id_product, { name, description, year, country_origin, price, stock, image_url }) {
+    static async update(id, { name, description, year, country_origin, price, stock, image_url }) {
         return prisma.product.update({
             where: {
-                id_product
+                id
             },
             data: {
                 name,
@@ -44,10 +44,10 @@ export class ProductService {
         });
     }
 
-    static async delete(id_product) {
+    static async delete(id) {
         return prisma.product.delete({
             where: {
-                id_product
+                id
             }
         });
     }

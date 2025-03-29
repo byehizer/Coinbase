@@ -9,6 +9,7 @@ import { AiOutlineSearch } from "react-icons/ai";
 import { SearchBar } from './components/Navbar/components/Searchbar';
 import { ShoppingCartProvider } from './context/shoppingcartcontext';
 import { Navbar } from './components/Navbar/Navbar';
+import { ToastContainer } from 'react-toastify';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -17,6 +18,7 @@ function App() {
     <>
       <BrowserRouter>
         <ModalProvider>
+          <ToastContainer />
           <ShoppingCartProvider>
           <Navbar></Navbar>
             <Routes>
