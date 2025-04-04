@@ -1,15 +1,15 @@
 import { useShoppingCart } from "../context/shoppingcartcontext";
-import { AiOutlineDelete } from "react-icons/ai"; // Icono de eliminar
-import { Link } from "react-router-dom"; // Para la navegación (si es necesario)
+import { AiOutlineDelete } from "react-icons/ai";
+import { Link } from "react-router-dom";
 
 export function ShoppingCartPage() {
-    const { products, removeProduct, totalAmount, clearShoppingCart, removeProductCompletely } = useShoppingCart();
+    const { products, removeProductCompletely, totalAmount, clearShoppingCart } = useShoppingCart();
 
     if (products.length === 0) {
         return (
-            <div className="flex justify-center items-center min-h-screen bg-gray-100">
-                <div className="bg-white p-8 rounded-lg shadow-lg text-center">
-                    <h2 className="text-3xl font-semibold mb-4">Tu carrito está vacío</h2>
+            <div className="flex justify-center items-center min-h-screen bg-gray-100 px-4">
+                <div className="bg-white p-6 sm:p-8 rounded-lg shadow-lg text-center w-full max-w-md">
+                    <h2 className="text-2xl sm:text-3xl font-semibold mb-4">Tu carrito está vacío</h2>
                     <Link to="/" className="text-blue-600 hover:text-blue-800 text-lg">
                         Volver a la tienda
                     </Link>
@@ -17,55 +17,61 @@ export function ShoppingCartPage() {
             </div>
         );
     }
+
     return (
-        <div className="flex justify-center p-6">
-            <div className="w-3/5 bg-white p-8 rounded-lg border shadow-xl">
-                <h1 className="text-4xl font-bold mb-6 text-center">Carrito de Compras</h1>
+        <div className="flex justify-center p-4 sm:p-6 bg-gray-100 min-h-screen">
+            <div className="w-full sm:w-11/12 md:w-4/5 lg:w-3/5 bg-white p-4 sm:p-8 rounded-lg border shadow-xl">
+                <h1 className="text-2xl sm:text-4xl font-bold mb-6 text-center">Carrito de Compras</h1>
 
                 <div className="grid gap-y-6">
-                    {/* Mostrar los productos del carrito */}
                     {products.map((product) => (
-                        <div key={product.id} className="flex justify-between items-center border-b py-4">
-                            <div className="flex items-center gap-x-8">
-                                <img src={product.image} alt={product.name} className="w-32 h-32 object-cover rounded-lg" />
+                        <div key={product.id} className="flex flex-col sm:flex-row justify-between items-center border-b py-4 gap-4">
+                            <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 text-center sm:text-left">
+                                <img
+                                    src={product.image}
+                                    alt={product.name}
+                                    className="w-28 h-28 sm:w-32 sm:h-32 object-cover rounded-lg"
+                                />
                                 <div>
-                                    <h5 className="text-xl font-medium">{product.name}</h5>
-                                    <span className="text-lg text-gray-500">Cantidad: {product.quantity}</span>
+                                    <h5 className="text-lg sm:text-xl font-medium">{product.name}</h5>
+                                    <span className="text-gray-500">Cantidad: {product.quantity}</span>
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-x-8">
-                                <span className="text-xl font-medium">${(product.price * product.quantity).toFixed(2)}</span>
+                            <div className="flex items-center gap-4 sm:gap-8">
+                                <span className="text-lg sm:text-xl font-medium">
+                                    ${(product.price * product.quantity).toFixed(2)}
+                                </span>
                                 <button
-                                    className="bg-red-600 hover:bg-red-800 text-white rounded-full p-4"
-                                    onClick={() => removeProductCompletely(product.id)} // Llamada a la función para eliminar el producto completamente
+                                    className="bg-red-600 hover:bg-red-800 text-white rounded-full p-3"
+                                    onClick={() => removeProductCompletely(product.id)}
                                 >
-                                    <AiOutlineDelete size={24} />
+                                    <AiOutlineDelete size={20} />
                                 </button>
                             </div>
                         </div>
                     ))}
                 </div>
 
-                {/* Total del carrito */}
-                <div className="flex justify-between pt-6 border-t">
-                    <span className="font-medium text-2xl">Total:</span>
-                    <span className="font-medium text-2xl">${totalAmount.toFixed(2)}</span>
+                <div className="flex justify-between pt-6 border-t mt-6">
+                    <span className="font-medium text-xl sm:text-2xl">Total:</span>
+                    <span className="font-medium text-xl sm:text-2xl">${totalAmount.toFixed(2)}</span>
                 </div>
 
-                {/* Botón para vaciar el carrito */}
-                <button
-                    className="w-full bg-gray-900 text-white px-6 py-4 mt-6 rounded-lg hover:bg-gray-800 text-xl"
-                    onClick={clearShoppingCart}
-                >
-                    Vaciar carrito
-                </button>
-                <button
-                    className="w-full bg-gray-900 text-white px-6 py-4 mt-6 rounded-lg hover:bg-gray-800 text-xl"
-                    onClick={clearShoppingCart}
-                >
-                    Ir a pagar
-                </button>
+                <div className="grid gap-4 mt-6">
+                    <button
+                        className="w-full bg-gray-900 text-white px-6 py-4 rounded-lg hover:bg-gray-800 text-lg sm:text-xl"
+                        onClick={clearShoppingCart}
+                    >
+                        Vaciar carrito
+                    </button>
+                    <button
+                        className="w-full bg-blue-600 text-white px-6 py-4 rounded-lg hover:bg-blue-500 text-lg sm:text-xl"
+                        onClick={() => alert("Ir a pagar")} // reemplazar con navegación real
+                    >
+                        Ir a pagar
+                    </button>
+                </div>
             </div>
         </div>
     );

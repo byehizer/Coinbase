@@ -15,10 +15,10 @@ export function ShoppingCart() {
     if (products.length === 0) return <EmptyShoppingCart />;
 
     return (
-        <div className="bg-white p-4 rounded-lg border shadow-lg">
-            <div className="grid gap-y-3 py-3">
+        <div className="bg-white p-4 rounded-lg border shadow-lg h-full w-full">
+            <div className="grid gap-y-3 py-3  overflow-x-hidden overflow-y-auto max-sm:max-h-[calc(100vh-250px)] ">
                 {products.map((product) => (
-                    <div key={product.id} className="flex gap-x-4 items-center">
+                    <div key={product.id} className="flex gap-x-4 items-center w-full min-w-0">
                         <img src={product.image} alt={product.name} className="w-12" />
                         <h5 className="w-32 text-ellipsis truncate font-medium">
                             {product.name}
@@ -47,7 +47,7 @@ export function ShoppingCart() {
                                 +
                             </button>
                         </div>
-                        <span className="ml-auto">$ {(product.price * product.quantity).toFixed(2)}</span>
+                        <span className="ml-auto">${(product.price * product.quantity).toFixed(2)}</span>
                         <div>
                             <button
                                 className="bg-red-600 hover:bg-red-800 text-white hover:text-slate-200 rounded-full p-2"
