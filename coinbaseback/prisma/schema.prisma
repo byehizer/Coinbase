@@ -64,7 +64,7 @@ model OrderDetail {
   id_product      Int
   quantity        Int
   price_unit      Decimal   @db.Decimal(10, 2)
-  order           Order     @relation(fields: [id_order], references: [id], onDelete: Cascade) // ✅ aquí va el onDelete
+  order           Order     @relation(fields: [id_order], references: [id], onDelete: Cascade) 
   product         Product   @relation(fields: [id_product], references: [id])
 }
 

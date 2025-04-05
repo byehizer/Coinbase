@@ -85,10 +85,10 @@ export class ProductController {
     }
 
     static async delete(req, res) {
-        const { id } = req.params;
+        const { id_product } = req.params;
 
         try {
-            await ProductService.delete(Number(id));
+            await ProductService.delete(Number(id_product));
 
             res.json({
                 message: "Product deleted successfully",

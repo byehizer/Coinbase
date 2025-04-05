@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export function AddProductForm() {
     const [productData, setProductData] = useState({
@@ -51,15 +52,15 @@ export function AddProductForm() {
             });
 
             if (response.ok) {
-                alert("Product added successfully!");
+                toast.success("Product added successfully!");
                 navigate("/admin/products");
             } else {
                 const errorData = await response.json();
-                alert(`Error: ${errorData.message || "Could not add product"}`);
+                toast.error(`Error: ${errorData.message || "Could not add product"}`);
             }
         } catch (error) {
             console.error("Error adding product:", error);
-            alert("An error occurred while adding the product.");
+            toast.error("An error occurred while adding the product.");
         }
     };
 

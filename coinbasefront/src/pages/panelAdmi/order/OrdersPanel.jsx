@@ -97,7 +97,7 @@ export function OrdersPanel() {
                                     <td className="py-2 px-4 border">{order.id}</td>
                                     <td className="py-2 px-4 border">{order.client_name}</td>
                                     <td className="py-2 px-4 border">{order.client_email}</td>
-                                    <td className="py-2 px-4 border">{order.order_date}</td>
+                                    <td className="py-2 px-4 border">{new Date(order.order_date).toLocaleString()}</td>
                                     <td className="py-2 px-4 border">${order.total}</td>
                                     <td className="py-2 px-4 border">{order.status}</td>
                                     <td className="py-2 px-4 border">{order.payment?.method}</td>
