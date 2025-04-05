@@ -1,4 +1,5 @@
 import { OrderService } from "../services/order.service.js";
+import { PaymentService } from "../services/payment.service.js";
 
 export class OrderController {
     static async getAll(req, res) {
@@ -23,6 +24,7 @@ export class OrderController {
     static async create(req, res) {
         try {
             const newOrder = await OrderService.create(req.body);
+            console.log(newOrder);
             res.status(201).json({ message: "Order created successfully", order: newOrder });
         } catch (error) {
             res.status(500).json({ error: "Error creating order", details: error.message });
@@ -49,13 +51,33 @@ export class OrderController {
 
     static async update(req, res) {
         try {
-            const updatedOrder = await OrderService.update(Number(req.params.id_order), req.body);
-            res.json({ message: "Order updated successfully", order: updatedOrder });
+            const id_order = Number(req.params.id_order);
+            const {client_name,client_email,total,status,id_payment,id_delivery,payment_method} = req.body;
+
+            const updatedOrder = await OrderService.update(id_order, {
+                client_name,
+                client_email,
+                total,
+                status,
+                id_payment,
+                id_delivery,
+            });
+
+            if (id_payment && payment_method) {
+                await PaymentService.update(id_payment, {method: payment_method,});
+            }
+
+            res.json({
+                message: "Order updated successfully",
+                order: updatedOrder,
+            });
         } catch (error) {
-            res.status(500).json({ error: "Error updating order", details: error.message });
+            res.status(500).json({
+                error: "Error updating order",
+                details: error.message,
+            });
         }
     }
-
 
 
     static async delete(req, res) {

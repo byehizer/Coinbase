@@ -20,16 +20,16 @@ model Delivery {
   address     String
   city        String
   country     String
-  status      DeliveryStatus @default(pendiente)
-  Order       Order[]
+  status      DeliveryStatus @default(pending)
+  Order   Order[] @relation("DeliveryOrders")
 }
 
 model Payment {
   id        Int             @id @default(autoincrement())
   method    PaymentMethod
-  status    PaymentStatus   @default(pendiente)
+  status    PaymentStatus   @default(pending)
   receipt   String?
-  Order     Order[]
+  Order     Order[] @relation("PaymentOrders")
 }
 
 model Product {
@@ -50,12 +50,12 @@ model Order {
   client_email String
   order_date  DateTime  @default(now())
   total       Decimal   @db.Decimal(10, 2)
-  status      OrderStatus @default(pendiente)
+  status      OrderStatus @default(pending)
   id_payment  Int?
   id_delivery Int?
-  payment     Payment?  @relation(fields: [id_payment], references: [id])
-  delivery    Delivery? @relation(fields: [id_delivery], references: [id])
-  OrderDetail OrderDetail[]
+  payment     Payment?  @relation("PaymentOrders", fields: [id_payment], references: [id], onDelete: Cascade)
+  delivery    Delivery? @relation("DeliveryOrders", fields: [id_delivery], references: [id], onDelete: Cascade)
+  OrderDetail   OrderDetail[]
 }
 
 model OrderDetail {
@@ -64,7 +64,7 @@ model OrderDetail {
   id_product      Int
   quantity        Int
   price_unit      Decimal   @db.Decimal(10, 2)
-  order           Order     @relation(fields: [id_order], references: [id])
+  order           Order     @relation(fields: [id_order], references: [id], onDelete: Cascade) // ✅ aquí va el onDelete
   product         Product   @relation(fields: [id_product], references: [id])
 }
 
@@ -77,33 +77,33 @@ model User {
 }
 
 enum DeliveryStatus {
-  pendiente
-  en_transito
-  entregado
+  pending
+  in_transit
+  delivered
 }
 
 enum PaymentMethod {
   PayPal
   Venmo
   Zelle
-  Tarjeta_Credito
-  Tarjeta_Debito
+  Credit_Card
+  Debit_Card
   Apple_Pay
   Google_Pay
   Cripto
 }
 
 enum PaymentStatus {
-  pendiente
-  aprobado
-  rechazado
+  pending
+  approved
+  rejected
 }
 
 enum OrderStatus {
-  pendiente
-  pagado
-  enviado
-  entregado
+  pending
+  paid
+  shipped
+  delivered
 }
 
 enum UserRole {

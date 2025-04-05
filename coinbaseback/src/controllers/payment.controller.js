@@ -36,13 +36,19 @@ export class PaymentController {
 
 
     static async create(req, res) {
-        const { method, status, receipt } = req.body;
+        const { method, status } = req.body;
+        const statusValue = (status || 'pending').toLowerCase();
+
+        let receipt = null;
+        if (req.file) {
+            receipt = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+        }
 
         try {
             const newPayment = await PaymentService.create({
                 method,
-                status: status || 'pending',  // Por default pending 
-                receipt: receipt || null,  
+                status: statusValue,
+                receipt,
             });
 
             res.status(201).json({
@@ -56,6 +62,7 @@ export class PaymentController {
             });
         }
     }
+
 
 
     static async updateStatus(req, res) {

@@ -37,12 +37,14 @@ export class DeliveryController {
     static async create(req, res) {
         const { address, city, country, status } = req.body;
 
+        const statusValue = (status || 'pending').toLowerCase(); // Pendiente por default
+
         try {
             const newDelivery = await DeliveryService.create({
                 address,
                 city,
                 country,
-                status: status || 'pending', // Pendiente por default
+                status: statusValue, 
             });
 
             res.status(201).json({

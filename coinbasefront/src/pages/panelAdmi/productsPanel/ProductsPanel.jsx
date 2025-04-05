@@ -96,7 +96,7 @@ export function ProductsPanel() {
                                     <td className="py-2 px-4 border">{product.country_origin}</td>
                                     <td className="py-2 px-4 border">${product.price}</td>
                                     <td className="py-2 px-4 border">{product.stock}</td>
-                                    <td className="py-2 px-4 border flex space-x-2">
+                                    <td className="py-2 px-4 border flex justify-center items-center space-x-2">
                                         <button className="bg-yellow-500 text-white px-3 py-1 rounded" onClick={() => handleGoEdit(product)}>Edit</button>
                                         <button className="bg-red-500 text-white px-3 py-1 rounded" onClick={() => deleteProduct(product.id)}>Delete</button>
                                     </td>

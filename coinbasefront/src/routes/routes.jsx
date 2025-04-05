@@ -1,4 +1,6 @@
+import { ContactPage } from "../pages/contactPage/ContactPage"
 import { AddOrdersForm } from "../pages/panelAdmi/order/addOrderForm/addOrderForm"
+import { EditOrderForm } from "../pages/panelAdmi/order/editOrderForm/editOrderForm"
 import { OrdersPanel } from "../pages/panelAdmi/order/OrdersPanel"
 import { AddProductForm } from "../pages/panelAdmi/productsPanel/addProductForm/addProductForm"
 import { EditProductForm } from "../pages/panelAdmi/productsPanel/editProductForm/editProductForm"
@@ -11,7 +13,9 @@ export const appRoutesAdmin = [
 
 export const appRoutesAdminAddProduct = [
     { path: "/admin/products/add", element: <AddProductForm />, name: "ProductsFormAdd" },
-    { path: "/admin/orders/add", element: <AddOrdersForm/>, name: "OrdersFormAdd" },
     { path: "/admin/products/edit", element: <EditProductForm />, name: "editProductForm" },
+    { path: "/admin/orders/add", element: <AddOrdersForm/>, name: "OrdersFormAdd" },
+    { path: "/admin/orders/edit", element: <EditOrderForm />, name: "EditOrderForm" },
+    { path: "/contact", element: <ContactPage />, name: "contactPage" },
 ]
 

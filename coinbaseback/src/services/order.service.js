@@ -2,7 +2,11 @@ import { prisma } from "../providers/prisma.provider.js";
 
 export class OrderService {
     static async getAll() {
-        return prisma.order.findMany();
+        return prisma.order.findMany({
+            include: {
+                payment: true, 
+            },
+        });
     }
 
     static async getById(id) {
