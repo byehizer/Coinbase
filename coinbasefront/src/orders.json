@@ -1,0 +1,52 @@
+[
+    {
+      "id": "ORD123456",
+      "email": "cliente1@example.com",
+      "estado": "pendiente",
+      "fechaPedido": "2025-04-06",
+      "metodoPago": "Zelle",
+      "productos": [
+        {
+          "nombre": "Billete de 100 dólares de 1934",
+          "cantidad": 1,
+          "precioUnitario": 150
+        },
+        {
+          "nombre": "Billete de 10 pesos mexicanos de 1910",
+          "cantidad": 2,
+          "precioUnitario": 80
+        }
+      ]
+    },
+    {
+      "id": "ORD789012",
+      "email": "cliente2@example.com",
+      "estado": "enviado",
+      "fechaPedido": "2025-04-04",
+      "metodoPago": "PayPal",
+      "trackingNumber": "TRACK998877",
+      "productos": [
+        {
+          "nombre": "Billete de 5 dólares de 1953",
+          "cantidad": 3,
+          "precioUnitario": 30
+        }
+      ]
+    },
+    {
+      "id": "ORD345678",
+      "email": "coleccionista@example.com",
+      "estado": "entregado",
+      "fechaPedido": "2025-03-30",
+      "metodoPago": "Tarjeta de crédito",
+      "trackingNumber": "TRACK123456",
+      "productos": [
+        {
+          "nombre": "Billete de 1 dólar azul de 1899",
+          "cantidad": 1,
+          "precioUnitario": 300
+        }
+      ]
+    }
+  ]
+  

@@ -5,6 +5,8 @@ import { ProductsPanel } from "../pages/panelAdmi/productsPanel/ProductsPanel"
 import { Home } from "../pages/home"
 import { ProductDetail } from "../pages/productdetail"
 import { ShoppingCartPage } from "../pages/shoppingcartpage"
+import { OrderForm } from "../pages/orderform"
+import TrackOrderPage from "../pages/trackorderpage"
 
 
 
@@ -23,4 +25,7 @@ export const appClientRoutes = [
     { path: "/", element: <Home />, name: "Home" },
     { path: "/product/:id", element: <ProductDetail />, name: "ProductDetail" },
     { path: "/shopping-cart", element: <ShoppingCartPage />, name: "ShoppingCart" },
+    { path: "/orderform", element: <OrderForm />, name: "OrderForm" },
+    { path: "/track-order", element:<TrackOrderPage/>, name:"TrackOrder"},
+
 ];

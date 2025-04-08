@@ -9,7 +9,6 @@ import { Link } from 'react-router-dom';
 
 export function Navbar() {
   const [showCart, setShowCart] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
   const { products } = useShoppingCart();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -101,39 +100,18 @@ export function Navbar() {
               <nav aria-label="Global">
                 <ul className="flex items-center lg:gap-10  gap-6 text-sm">
                   <li>
-                    <a
-                      className="text-gray-500 transition hover:text-gray-500/75 dark:text-white dark:hover:text-white/75"
-                      href="#"
-                    >
-                      About
-                    </a>
+                    <Link to="/" className="text-gray-500 transition hover:text-gray-500/75 dark:text-white dark:hover:text-white/75"> Home </Link>
                   </li>
 
                   <li>
-                    <a
-                      className="text-gray-500 transition hover:text-gray-500/75 dark:text-white dark:hover:text-white/75"
-                      href="#"
-                    >
-                      Careers
-                    </a>
+                    <Link to="/about" className="text-gray-500 transition hover:text-gray-500/75 dark:text-white dark:hover:text-white/75"> About Us </Link>
                   </li>
-
+                  
                   <li>
-                    <a
-                      className="text-gray-500 transition hover:text-gray-500/75 dark:text-white dark:hover:text-white/75"
-                      href="#"
-                    >
-                      History
-                    </a>
+                    <Link to="/contact" className="text-gray-500 transition hover:text-gray-500/75 dark:text-white dark:hover:text-white/75"> Contact Us </Link>
                   </li>
-
                   <li>
-                    <a
-                      className="text-gray-500 transition hover:text-gray-500/75 dark:text-white dark:hover:text-white/75"
-                      href="#"
-                    >
-                      Contact
-                    </a>
+                    <Link to="/track-order" className="text-gray-500 transition hover:text-gray-500/75 dark:text-white dark:hover:text-white/75"> Track Order </Link>
                   </li>
                 </ul>
               </nav>

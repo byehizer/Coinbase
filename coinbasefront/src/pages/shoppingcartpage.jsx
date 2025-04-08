@@ -1,9 +1,11 @@
 import { useShoppingCart } from "../context/shoppingcartcontext";
 import { AiOutlineDelete } from "react-icons/ai";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export function ShoppingCartPage() {
     const { products, removeProductCompletely, totalAmount, clearShoppingCart } = useShoppingCart();
+
+    const navigate = useNavigate();
 
     if (products.length === 0) {
         return (
@@ -17,7 +19,7 @@ export function ShoppingCartPage() {
             </div>
         );
     }
-
+    
     return (
         <div className="flex justify-center p-4 sm:p-6 bg-gray-100 min-h-screen">
             <div className="w-full sm:w-11/12 md:w-4/5 lg:w-3/5 bg-white p-4 sm:p-8 rounded-lg border shadow-xl">
@@ -67,7 +69,7 @@ export function ShoppingCartPage() {
                     </button>
                     <button
                         className="w-full bg-blue-600 text-white px-6 py-4 rounded-lg hover:bg-blue-500 text-lg sm:text-xl"
-                        onClick={() => alert("Ir a pagar")} // reemplazar con navegación real
+                        onClick={() => navigate(`/orderform`)} // reemplazar con navegación real
                     >
                         Ir a pagar
                     </button>
