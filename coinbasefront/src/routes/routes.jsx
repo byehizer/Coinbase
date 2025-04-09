@@ -1,4 +1,5 @@
 import { ContactPage } from "../pages/contactPage/ContactPage"
+import { MessagesPanel } from "../pages/panelAdmi/messagesPanel/MessagesPanel"
 import { AddOrdersForm } from "../pages/panelAdmi/order/addOrderForm/addOrderForm"
 import { EditOrderForm } from "../pages/panelAdmi/order/editOrderForm/editOrderForm"
 import { OrdersPanel } from "../pages/panelAdmi/order/OrdersPanel"
@@ -9,6 +10,8 @@ import { ProductsPanel } from "../pages/panelAdmi/productsPanel/ProductsPanel"
 export const appRoutesAdmin = [
     { path: "/admin/products", element: <ProductsPanel />, name: "Products" },
     { path: "/admin/orders", element: <OrdersPanel />, name: "Orders" },
+    { path: "/admin/messages", element: <MessagesPanel />, name: "Messages" },
+
 ]
 
 export const appRoutesAdminAddProduct = [

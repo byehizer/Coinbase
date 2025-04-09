@@ -7,7 +7,7 @@ import { orderDetailRouter } from "./routes/order_detail.routes.js";
 import { paymentRouter } from "./routes/payment.routes.js"; 
 import { deliveryRouter } from "./routes/delivery.routes.js"; 
 import { contactRouter } from "./routes/contact.routes.js";
-
+import { messageRouter } from "./routes/message.routes.js";
 
 const app = express();
 const PORT = 5000;//La DB de google nos va a dar un puerto, asi que lo vamos a tener que cambiar mas adelante
@@ -38,6 +38,7 @@ app.use("/api/order-details", orderDetailRouter);
 app.use("/api/payments", paymentRouter);
 app.use("/api/deliveries", deliveryRouter);
 app.use("/api/contact", contactRouter);
+app.use("/api/messages", messageRouter);
 //Falta el de user pero no creo que lo usemos
 
 

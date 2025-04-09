@@ -52,6 +52,7 @@ export function ProductsPanel() {
 
     return (
         <div className="flex h-screen bg-gray-100">
+            
             {/* Sidebar */}
             <div className={`w-64 bg-blue-900 text-white p-5 fixed md:static top-0 left-0 h-full transition-transform duration-300 ${menuOpen ? "translate-x-0" : "-translate-x-64"} md:translate-x-0`}>
                 <button className="md:hidden text-white text-xl absolute top-2 right-4" onClick={() => setMenuOpen(false)}>✖</button>
@@ -66,6 +67,9 @@ export function ProductsPanel() {
                     ))}
                 </ul>
             </div>
+
+            {/* Botón menú mobile */}
+            <button className={`md:hidden absolute top-16 left-0 text-blue-900 text-2xl p-2 border-2 border-gray-400 rounded bg-gray-200 ${menuOpen ? "hidden" : ""}`} onClick={() => setMenuOpen(true)}>☰</button>
 
             {/* Contenido Principal */}
             <div className="flex-1 p-6">
@@ -105,6 +109,26 @@ export function ProductsPanel() {
                         </tbody>
                     </table>
                 </div>
+
+
+                {/* Tarjetas para mobile */}
+                <div className="md:hidden space-y-4 mt-4">
+                    {products.map(product => (
+                        <div key={product.id} className="bg-white p-4 rounded-lg shadow">
+                            <p><strong>Name:</strong> {product.name}</p>
+                            <p><strong>Description:</strong> {product.description}</p>
+                            <p><strong>Year:</strong> {product.year}</p>
+                            <p><strong>Country:</strong> {product.country_origin}</p>
+                            <p><strong>Price:</strong> ${product.price}</p>
+                            <p><strong>Stock:</strong> {product.stock}</p>
+                            <div className="mt-4 flex justify-center space-x-4">
+                                <button className="bg-yellow-500 text-white px-3 py-1 rounded" onClick={() => handleGoEdit(product)}>Edit</button>
+                                <button className="bg-red-500 text-white px-3 py-1 rounded" onClick={() => deleteProduct(product.id)}>Delete</button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
 
                 <button onClick={redirectToAddProduct} className="mt-4 bg-blue-600 text-white px-4 py-2 rounded">
                     Add Product
