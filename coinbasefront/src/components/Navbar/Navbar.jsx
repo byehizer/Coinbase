@@ -27,7 +27,7 @@ export function Navbar() {
         cartRef.current &&
         !cartRef.current.contains(event.target) &&
         buttonRef.current &&
-        !buttonRef.current.contains(event.target) // Evita cerrar si se hizo clic en el botón
+        !buttonRef.current.contains(event.target)
       ) {
         setShowCart(false);
       }
@@ -106,7 +106,7 @@ export function Navbar() {
                   <li>
                     <Link to="/about" className="text-gray-500 transition hover:text-gray-500/75 dark:text-white dark:hover:text-white/75"> About Us </Link>
                   </li>
-                  
+
                   <li>
                     <Link to="/contact" className="text-gray-500 transition hover:text-gray-500/75 dark:text-white dark:hover:text-white/75"> Contact Us </Link>
                   </li>
@@ -127,10 +127,10 @@ export function Navbar() {
               <AiOutlineClose />
             </button>
             <nav className="flex flex-col items-center gap-6 text-2xl">
-              <a className="text-white hover:text-gray-300" href="#">About</a>
-              <a className="text-white hover:text-gray-300" href="#">Careers</a>
-              <a className="text-white hover:text-gray-300" href="#">History</a>
-              <a className="text-white hover:text-gray-300" href="#">Contact</a>
+              <Link to="/" className="text-white hover:text-gray-300"> Home </Link>
+              <Link to="/about" className="text-white hover:text-gray-300"> About Us </Link>
+              <Link to="/contact" className="text-white hover:text-gray-300"> Contact Us </Link>
+              <Link to="/track-order" className="text-white hover:text-gray-300"> Track Order </Link>
             </nav>
           </div>
         )}

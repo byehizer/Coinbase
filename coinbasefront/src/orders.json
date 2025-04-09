@@ -1,52 +1,55 @@
 [
-    {
-      "id": "ORD123456",
-      "email": "cliente1@example.com",
-      "estado": "pendiente",
-      "fechaPedido": "2025-04-06",
-      "metodoPago": "Zelle",
-      "productos": [
-        {
-          "nombre": "Billete de 100 dólares de 1934",
-          "cantidad": 1,
-          "precioUnitario": 150
-        },
-        {
-          "nombre": "Billete de 10 pesos mexicanos de 1910",
-          "cantidad": 2,
-          "precioUnitario": 80
-        }
-      ]
-    },
-    {
-      "id": "ORD789012",
-      "email": "cliente2@example.com",
-      "estado": "enviado",
-      "fechaPedido": "2025-04-04",
-      "metodoPago": "PayPal",
-      "trackingNumber": "TRACK998877",
-      "productos": [
-        {
-          "nombre": "Billete de 5 dólares de 1953",
-          "cantidad": 3,
-          "precioUnitario": 30
-        }
-      ]
-    },
-    {
-      "id": "ORD345678",
-      "email": "coleccionista@example.com",
-      "estado": "entregado",
-      "fechaPedido": "2025-03-30",
-      "metodoPago": "Tarjeta de crédito",
-      "trackingNumber": "TRACK123456",
-      "productos": [
-        {
-          "nombre": "Billete de 1 dólar azul de 1899",
-          "cantidad": 1,
-          "precioUnitario": 300
-        }
-      ]
-    }
-  ]
-  
+  {
+    "id": "ORD123456",
+    "email": "cliente1@example.com",
+    "estado": "pendiente",
+    "fechaPedido": "2025-04-06",
+    "metodoPago": "Zelle",
+    "productos": [
+      {
+        "nombre": "Mouse Inalámbrico",
+        "cantidad": 1,
+        "precioUnitario": 49.99,
+        "imagen": "https://http2.mlstatic.com/D_NQ_NP_980794-MLU72930443331_112023-O.webp"
+      },
+      {
+        "nombre": "Auriculares Bluetooth",
+        "cantidad": 2,
+        "precioUnitario": 149.99,
+        "imagen": "https://http2.mlstatic.com/D_NQ_NP_912832-MLU77735968477_072024-O.webp"
+      }
+    ]
+  },
+  {
+    "id": "ORD789012",
+    "email": "cliente2@example.com",
+    "estado": "enviado",
+    "fechaPedido": "2025-04-04",
+    "metodoPago": "PayPal",
+    "trackingNumber": "TRACK998877",
+    "productos": [
+      {
+        "nombre": "Teclado Mecánico RGB",
+        "cantidad": 3,
+        "precioUnitario": 99.99,
+        "imagen": "https://http2.mlstatic.com/D_NQ_NP_835214-MLU70471120496_072023-O.webp"
+      }
+    ]
+  },
+  {
+    "id": "ORD345678",
+    "email": "coleccionista@example.com",
+    "estado": "entregado",
+    "fechaPedido": "2025-03-30",
+    "metodoPago": "Tarjeta de crédito",
+    "trackingNumber": "TRACK123456",
+    "productos": [
+      {
+        "nombre": "Smartwatch de Lujo",
+        "cantidad": 1,
+        "precioUnitario": 349.99,
+        "imagen": "https://http2.mlstatic.com/D_NQ_NP_791901-MLU76205342700_052024-O.webp"
+      }
+    ]
+  }
+]
