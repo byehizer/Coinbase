@@ -1,0 +1,119 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+
+model Delivery {
+  id          Int      @id @default(autoincrement())
+  address     String
+  city        String
+  country     String
+  status      DeliveryStatus @default(pending)
+  Order   Order[] @relation("DeliveryOrders")
+}
+
+model Payment {
+  id        Int             @id @default(autoincrement())
+  method    PaymentMethod
+  status    PaymentStatus   @default(pending)
+  receipt   String?
+  Order     Order[] @relation("PaymentOrders")
+}
+
+model Product {
+  id           Int      @id @default(autoincrement())
+  name         String
+  description  String?
+  year         Int
+  country_origin String
+  price        Decimal   @db.Decimal(10, 2)
+  stock        Int
+  image_url    String?
+  OrderDetail  OrderDetail[]
+}
+
+model Order {
+  id          Int       @id @default(autoincrement())
+  client_name String
+  client_email String
+  order_date  DateTime  @default(now())
+  total       Decimal   @db.Decimal(10, 2)
+  status      OrderStatus @default(pending)
+  id_payment  Int?
+  id_delivery Int?
+  payment     Payment?  @relation("PaymentOrders", fields: [id_payment], references: [id], onDelete: Cascade)
+  delivery    Delivery? @relation("DeliveryOrders", fields: [id_delivery], references: [id], onDelete: Cascade)
+  OrderDetail   OrderDetail[]
+}
+
+model OrderDetail {
+  id_order_detail Int      @id @default(autoincrement())
+  id_order        Int
+  id_product      Int
+  quantity        Int
+  price_unit      Decimal   @db.Decimal(10, 2)
+  order           Order     @relation(fields: [id_order], references: [id], onDelete: Cascade) 
+  product         Product   @relation(fields: [id_product], references: [id])
+}
+
+model User {
+  id_user   Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      UserRole @default(admin)
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  message   String
+  createdAt DateTime @default(now())
+}
+
+enum DeliveryStatus {
+  pending
+  in_transit
+  delivered
+}
+
+enum PaymentMethod {
+  PayPal
+  Venmo
+  Zelle
+  Credit_Card
+  Debit_Card
+  Apple_Pay
+  Google_Pay
+  Cripto
+}
+
+enum PaymentStatus {
+  pending
+  approved
+  rejected
+}
+
+enum OrderStatus {
+  pending
+  paid
+  shipped
+  delivered
+}
+
+enum UserRole {
+  admin
+}

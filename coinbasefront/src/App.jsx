@@ -12,6 +12,7 @@ import { Footer } from './components/footer'
 import { AuthProvider } from './context/AuthContext';
 import RequireAuth from './components/RequireAuth';
 
+import { ToastContainer } from 'react-toastify';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
         <ModalProvider>
+          <ToastContainer />
           <ShoppingCartProvider>
             <div className='flex flex-col min-h-screen'>
               <Navbar />

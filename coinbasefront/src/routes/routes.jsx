@@ -1,6 +1,10 @@
+import { ContactPage } from "../pages/contactPage/ContactPage"
+import { MessagesPanel } from "../pages/panelAdmi/messagesPanel/MessagesPanel"
 import { AddOrdersForm } from "../pages/panelAdmi/order/addOrderForm/addOrderForm"
+import { EditOrderForm } from "../pages/panelAdmi/order/editOrderForm/editOrderForm"
 import { OrdersPanel } from "../pages/panelAdmi/order/OrdersPanel"
 import { AddProductForm } from "../pages/panelAdmi/productsPanel/addProductForm/addProductForm"
+import { EditProductForm } from "../pages/panelAdmi/productsPanel/editProductForm/editProductForm"
 import { ProductsPanel } from "../pages/panelAdmi/productsPanel/ProductsPanel"
 import { Home } from "../pages/home"
 import { ProductDetail } from "../pages/productdetail"
@@ -15,10 +19,13 @@ import AdminLogin from "../pages/panelAdmi/AdminLogin"
 export const appRoutesAdmin = [
     { path: "/admin/products", element: <ProductsPanel />, name: "Products" },
     { path: "/admin/orders", element: <OrdersPanel />, name: "Orders" },
+    { path: "/admin/messages", element: <MessagesPanel />, name: "Messages" },
+
 ]
 
 export const appRoutesAdminAddProduct = [
     { path: "/admin/products/add", element: <AddProductForm />, name: "ProductsFormAdd" },
+<<<<<<< HEAD
     { path: "/admin/orders/add", element: <AddOrdersForm />, name: "OrdersFormAdd" },
 
 ]
@@ -33,3 +40,11 @@ export const appClientRoutes = [
     { path: "/order-detail", element: <OrderDetailPage />, name: "Order Detail" },
 
 ];
+=======
+    { path: "/admin/products/edit", element: <EditProductForm />, name: "editProductForm" },
+    { path: "/admin/orders/add", element: <AddOrdersForm/>, name: "OrdersFormAdd" },
+    { path: "/admin/orders/edit", element: <EditOrderForm />, name: "EditOrderForm" },
+    { path: "/contact", element: <ContactPage />, name: "contactPage" },
+]
+
+>>>>>>> Franco

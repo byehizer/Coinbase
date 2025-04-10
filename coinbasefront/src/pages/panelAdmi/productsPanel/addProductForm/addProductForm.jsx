@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export function AddProductForm() {
     const [productData, setProductData] = useState({
@@ -26,12 +27,49 @@ export function AddProductForm() {
         navigate("/admin/products");
     };
 
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        const product = {
+            name: productData.name,
+            description:productData.description,
+            year: parseInt(productData.year),
+            country_origin:productData.country_origin,
+            price: parseFloat(productData.price),
+            stock: parseInt(productData.stock),
+            image_url:productData.image_url,
+        };
+
+
+        try {
+            const response = await fetch("http://localhost:5000/api/products", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(product),
+            });
+
+            if (response.ok) {
+                toast.success("Product added successfully!");
+                navigate("/admin/products");
+            } else {
+                const errorData = await response.json();
+                toast.error(`Error: ${errorData.message || "Could not add product"}`);
+            }
+        } catch (error) {
+            console.error("Error adding product:", error);
+            toast.error("An error occurred while adding the product.");
+        }
+    };
+
     return (
         <div className="flex justify-center items-center min-h-screen bg-white sm:bg-gray-100">
- 
+
             <div className="w-full max-w-lg sm:max-w-2xl bg-white p-8 shadow-md rounded-md">
                 <h2 className="text-2xl font-bold mb-6 text-center">Add New Product</h2>
-                <form>
+                <form onSubmit={handleSubmit}>
                     <div className="mb-4">
                         <label className="block text-sm font-medium text-gray-700">Name</label>
                         <input
@@ -96,6 +134,7 @@ export function AddProductForm() {
                             required
                         />
                     </div>
+
                     <div className="mb-4">
                         <label htmlFor="productImage" className="block text-lg mb-2">Upload Product Image</label>
                         <input
@@ -105,6 +144,7 @@ export function AddProductForm() {
                             className="block w-full p-2 border border-gray-300 rounded"
                         />
                     </div>
+
                     <div className="flex justify-between">
                         <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded">
                             Save Product
