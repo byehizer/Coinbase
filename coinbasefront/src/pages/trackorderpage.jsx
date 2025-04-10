@@ -28,7 +28,7 @@ export default function TrackOrderPage() {
         }
     };
     return (
-        <div className="flex justify-center items-center min-h-[calc(100vh-100px)] text-white">
+        <div className="flex justify-center items-center min-h-[calc(100vh-200px)] text-white">
             <div className={`w-full  max-w-[32rem] p-6 border border-gray-700 rounded-xl shadow-lg bg-gray-800`}>
                 <h1 className="text-2xl font-semibold mb-4 text-center">Rastrear Pedido</h1>
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">

@@ -25,10 +25,13 @@ export const appRoutesAdmin = [
 
 export const appRoutesAdminAddProduct = [
     { path: "/admin/products/add", element: <AddProductForm />, name: "ProductsFormAdd" },
-<<<<<<< HEAD
     { path: "/admin/orders/add", element: <AddOrdersForm />, name: "OrdersFormAdd" },
-
+    { path: "/admin/products/edit", element: <EditProductForm />, name: "editProductForm" },
+    { path: "/admin/orders/add", element: <AddOrdersForm/>, name: "OrdersFormAdd" },
+    { path: "/admin/orders/edit", element: <EditOrderForm />, name: "EditOrderForm" },
+    
 ]
+
 
 export const appClientRoutes = [
     { path: "/admin", element: <AdminLogin />, name: "Admin Login" },
@@ -38,13 +41,8 @@ export const appClientRoutes = [
     { path: "/orderform", element: <OrderForm />, name: "Order Form" },
     { path: "/track-order", element: <TrackOrderPage />, name: "Track Order" },
     { path: "/order-detail", element: <OrderDetailPage />, name: "Order Detail" },
+    { path: "/contact", element: <ContactPage />, name: "contactPage" },
 
 ];
-=======
-    { path: "/admin/products/edit", element: <EditProductForm />, name: "editProductForm" },
-    { path: "/admin/orders/add", element: <AddOrdersForm/>, name: "OrdersFormAdd" },
-    { path: "/admin/orders/edit", element: <EditOrderForm />, name: "EditOrderForm" },
-    { path: "/contact", element: <ContactPage />, name: "contactPage" },
-]
+    
 
->>>>>>> Franco

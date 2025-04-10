@@ -10,7 +10,7 @@ export function OrderForm() {
     };
 
     return (
-        <div className="my-5">
+        <div className="flex min-h-[calc(100vh-200px)] justify-center items-center">
             <div className="container mx-auto max-w-xl shadow-md dark:shadow-white py-4 px-6 sm:px-10 bg-white dark:bg-gray-800 border-emerald-500 rounded-md">
                 <h1 className="text-center text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-4">
                     Complete Your Purchase
