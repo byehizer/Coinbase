@@ -40,8 +40,8 @@ export function ProductDetail() {
     }
 
     return (
-        <div className="flex justify-center">
-            <div className="main-wrapper flex flex-col md:flex-row md:px-[200px] md:py-[100px] relative ">
+        <div className="flex justify-center min-h-[calc(100vh-200px)] items-center">
+            <div className="main-wrapper flex flex-col md:flex-row md:px-[200px] md:py-[100px] relative">
                 <div className="image md:basis-1/2 md:flex md:flex-col md:justify-between items-center text-center">
                     <div className="hidden md:flex large-image justify-center">
                         <img

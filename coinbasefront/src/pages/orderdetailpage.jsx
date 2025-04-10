@@ -24,7 +24,7 @@ export default function OrderDetailPage() {
     if (!order) return null;
 
     return (
-        <div className="flex justify-center items-center min-h-[calc(100vh-100px)] text-white">
+        <div className="flex justify-center items-center min-h-[calc(100vh-200px)] text-white">
             <div className="w-full max-w-2xl p-6 border border-gray-700 rounded-xl shadow-lg bg-gray-800">
                 <h2 className="text-xl font-bold mb-4 text-center">Información del Pedido</h2>
                 <p><strong>ID:</strong> {order.id}</p>
