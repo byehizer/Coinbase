@@ -1,41 +1,65 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
+import { decodeToken } from "../utils/jwt";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [Users, setUsers] = useState([]);
+    const [User, setUser] = useState(null);
+    const [token, setToken] = useState(null);
 
     useEffect(() => {
-        const fetchUsers = async () => {
-            try {
-                const res = await fetch("http://localhost:5000/api/users");
-                const data = await res.json();
-                setUsers(data);
-            } catch (error) {
-                console.error("Error fetching users:", error);
-            }
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            setUser(null);
+            return;
         }
-        fetchUsers();
+        const decodedToken = decodeToken(token);
+        
+        if (!decodedToken) {
+            localStorage.removeItem("token");
+            setUser(null);
+            return;
+        }
+
+        if (decodedToken.exp < Date.now() / 1000) {
+            localStorage.removeItem("token");
+            setUser(null);
+            return;
+        }
+
+        
+
+        setToken(token);
+        setUser(decodedToken);
     }, []);
 
 
-    const login = (password, email) => {
+    const login = async (email, password) => {
+        const response = await fetch("http://localhost:5000/api/auth/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email, password }),
+        });
 
-        const user = Users.find((u) => u.email === email && u.password === password)
-        if (password === 'admin123') { // <- Cambialo por un método real en el futuro
-            setIsAuthenticated(true);
-            return true;
+        if (response.ok) {
+            const data = await response.json();
+            localStorage.setItem("token", data.token);
+            setUser(decodeToken(data.token));
         }
-        return false;
+
+        return response;
     };
 
     const logout = () => {
-        setIsAuthenticated(false);
+        localStorage.removeItem("token");
+        setUser(null);
     };
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+        <AuthContext.Provider value={{ User, login, logout, token }}>
             {children}
         </AuthContext.Provider>
     );
