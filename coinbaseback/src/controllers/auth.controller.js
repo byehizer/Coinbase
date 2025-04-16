@@ -6,12 +6,10 @@ export class AuthController {
   static async login(req, res) {
     const { email, password } = req.body;
     try {
-      
       const user = await UserService.getByEmail({ email });
       if (!user) {
         return res.status(401).json({ error: "El usuario no existe" });
       }
-
       const isPasswordCorrect = await verifyPassword(password, user.password);
       if (!isPasswordCorrect) {
         return res.status(401).json({ error: "La contraseña no es correcta" });

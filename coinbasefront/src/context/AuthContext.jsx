@@ -9,13 +9,14 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const token = localStorage.getItem("token");
+        console.log(token);
 
         if (!token) {
             setUser(null);
             return;
         }
         const decodedToken = decodeToken(token);
-        
+
         if (!decodedToken) {
             localStorage.removeItem("token");
             setUser(null);
@@ -28,7 +29,7 @@ export const AuthProvider = ({ children }) => {
             return;
         }
 
-        
+
 
         setToken(token);
         setUser(decodedToken);

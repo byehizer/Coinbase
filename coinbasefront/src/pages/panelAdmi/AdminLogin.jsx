@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
@@ -8,17 +8,24 @@ export default function AdminLogin() {
     const [email, setEmail] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
-    const { login } = useAuth();
+    const { login, User } = useAuth();
+
+    useEffect(() => {
+        if (User) {
+            navigate('/admin/products');
+        }
+    })
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError(''); 
+        setError('');
 
         try {
 
             const response = await login(email, password);
 
-        
+
             if (!response.ok) {
                 const data = await response.json();
                 const msg = data.error || 'Credenciales inválidas';
@@ -27,15 +34,15 @@ export default function AdminLogin() {
                 return;
             }
 
-            
+
             toast.success("Inicio de sesión exitoso");
 
             setTimeout(() => {
-                navigate('/admin/products'); 
+                navigate('/admin/products');
             }, 1000);
 
         } catch (err) {
-           
+
             console.error("Error en login:", err);
             setError('Ocurrió un error inesperado. Por favor, intente más tarde.');
             toast.error('Ocurrió un error inesperado. Por favor, intente más tarde.');

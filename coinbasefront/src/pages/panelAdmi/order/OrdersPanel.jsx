@@ -2,17 +2,28 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { appRoutesAdmin } from "../../../routes/routes";
 import { useModal } from "../../../context/ModalContext";
+import { useAuth } from "../../../context/AuthContext";
 
 export function OrdersPanel() {
     const [menuOpen, setMenuOpen] = useState(false);
     const { openModal } = useModal();
     const navigate = useNavigate();
     const [orders, setOrders] = useState([]);
+    const { token } = useAuth()
 
     useEffect(() => {
         const fetchOrders = async () => {
             try {
-                const res = await fetch("http://localhost:5000/api/orders");
+                const res = await fetch("http://localhost:5000/api/orders", {
+                    headers: {
+                        Authorization: `Bearer ${token}`, // 👈 importante para evitar 401
+                    },
+                });
+
+                if (!res.ok) {
+                    throw new Error("Error al obtener las órdenes");
+                }
+
                 const data = await res.json();
                 setOrders(data);
             } catch (error) {
@@ -43,7 +54,7 @@ export function OrdersPanel() {
 
 
     const redirectToAddOrder = () => {
-        navigate("/admin/orders/add");  
+        navigate("/admin/orders/add");
     };
 
     const handleGoEdit = (product) => {
