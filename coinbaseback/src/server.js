@@ -1,6 +1,8 @@
 import express from "express";
 import morgan from "morgan";
 import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
 import { productRouter } from "./routes/product.routes.js";  
 import { orderRouter } from "./routes/order.routes.js";      
 import { orderDetailRouter } from "./routes/order_detail.routes.js"; 
@@ -9,10 +11,13 @@ import { deliveryRouter } from "./routes/delivery.routes.js";
 import { contactRouter } from "./routes/contact.routes.js";
 import { messageRouter } from "./routes/message.routes.js";
 
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+
 const app = express();
 const PORT = 5000;//La DB de google nos va a dar un puerto, asi que lo vamos a tener que cambiar mas adelante
-
-
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -20,7 +25,7 @@ app.use(morgan("dev"));
 app.use(cors({
     origin: "http://localhost:5173"
 }));
-
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 app.get("/", (request, response) => {
     response.json({

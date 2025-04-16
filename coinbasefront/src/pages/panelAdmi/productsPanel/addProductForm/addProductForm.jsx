@@ -10,9 +10,9 @@ export function AddProductForm() {
         country_origin: "",
         price: "",
         stock: "",
-        image_url: "",
     });
 
+    const [image, setImage] = useState(null); 
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -23,6 +23,10 @@ export function AddProductForm() {
         });
     };
 
+    const handleImageChange = (e) => {
+        setImage(e.target.files[0]); // Almacenar la imagen seleccionada
+    };
+
     const handleGoBack = () => {
         navigate("/admin/products");
     };
@@ -31,24 +35,23 @@ export function AddProductForm() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const product = {
-            name: productData.name,
-            description:productData.description,
-            year: parseInt(productData.year),
-            country_origin:productData.country_origin,
-            price: parseFloat(productData.price),
-            stock: parseInt(productData.stock),
-            image_url:productData.image_url,
-        };
+        const formData = new FormData(); // Crear una instancia de FormData
+        formData.append("name", productData.name);
+        formData.append("description", productData.description);
+        formData.append("year", productData.year);
+        formData.append("country_origin", productData.country_origin);
+        formData.append("price", productData.price);
+        formData.append("stock", productData.stock);
 
+        // Si hay una imagen, agregarla al FormData
+        if (image) {
+            formData.append("image", image);
+        }
 
         try {
             const response = await fetch("http://localhost:5000/api/products", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(product),
+                body: formData, // Enviar el FormData en lugar de JSON
             });
 
             if (response.ok) {
@@ -141,6 +144,7 @@ export function AddProductForm() {
                             type="file"
                             id="productImage"
                             accept="image/*"
+                            onChange={handleImageChange}
                             className="block w-full p-2 border border-gray-300 rounded"
                         />
                     </div>

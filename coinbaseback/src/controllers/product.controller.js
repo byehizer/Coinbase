@@ -34,16 +34,16 @@ export class ProductController {
     }
 
     static async create(req, res) {
-        const { name, description, year, country_origin, price, stock, image_url } = req.body;
-
+        const { name, description, year, country_origin, price, stock } = req.body;
+        const image_url = req.file ? `/uploads/products/${req.file.filename}` : null; 
         try {
             const newProduct = await ProductService.create({
                 name,
                 description,
-                year,
+                year: year ? parseInt(year, 10) : undefined, 
                 country_origin,
-                price,
-                stock,
+                price: price ? parseFloat(price) : undefined,  
+                stock: stock ? parseInt(stock, 10) : undefined, 
                 image_url
             });
 
@@ -60,18 +60,23 @@ export class ProductController {
 
     static async update(req, res) {
         const id_product = parseInt(req.params.id_product, 10);
-        const { name, description, year, country_origin, price, stock, image_url } = req.body;
+        const { name, description, year, country_origin, price, stock } = req.body;
+
+        const dataToUpdate = {
+            name,
+            description,
+            year: year ? parseInt(year, 10) : undefined,
+            country_origin,
+            price: price ? parseFloat(price) : undefined,
+            stock: stock ? parseInt(stock, 10) : undefined,
+        };
+
+        if (req.file) {
+            dataToUpdate.image_url = `/uploads/products/${req.file.filename}`;
+        }
 
         try {
-            const updatedProduct = await ProductService.update(id_product, {
-                name,
-                description,
-                year: year ? parseInt(year, 10) : undefined,
-                country_origin,
-                price: price ? parseFloat(price) : undefined,
-                stock: stock ? parseInt(stock, 10) : undefined,
-                image_url,
-            });
+            const updatedProduct = await ProductService.update(id_product, dataToUpdate);
 
             res.json({
                 message: "Product updated successfully",

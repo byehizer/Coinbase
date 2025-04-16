@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { ProductController } from "../controllers/product.controller.js";
+import { uploadSingleProductImage } from "../middlewares/multer.config.js";
 
 export const productRouter = Router();
 
@@ -8,6 +9,6 @@ export const productRouter = Router();
 
 productRouter.get("/", ProductController.getAll); 
 productRouter.get("/:id_product", ProductController.getById); 
-productRouter.post("/", ProductController.create);
-productRouter.put("/:id_product", ProductController.update); 
+productRouter.post("/", uploadSingleProductImage(), ProductController.create);
+productRouter.put("/:id_product", uploadSingleProductImage(), ProductController.update); 
 productRouter.delete("/:id_product", ProductController.delete);

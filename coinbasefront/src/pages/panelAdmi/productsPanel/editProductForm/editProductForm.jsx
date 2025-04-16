@@ -20,6 +20,7 @@ export function EditProductForm() {
         image_url: "",
     });
 
+    const [imageFile, setImageFile] = useState(null);
 
     useEffect(() => {
         if (product) {
@@ -44,14 +45,22 @@ export function EditProductForm() {
             return;
         }
 
+        const formData = new FormData();
+        formData.append("name", productData.name);
+        formData.append("description", productData.description);
+        formData.append("year", productData.year);
+        formData.append("country_origin", productData.country_origin);
+        formData.append("price", productData.price);
+        formData.append("stock", productData.stock);
+
+        if (imageFile) {
+            formData.append("image", imageFile);
+        }
+
         try {
             const response = await fetch(`http://localhost:5000/api/products/${product.id}`, {
                 method: "PUT",
-                headers: {
-                    "Content-Type": "application/json"
-                    //"Authorization": `Bearer ${token}`, Hacer el AuthContext
-                },
-                body: JSON.stringify(productData),
+                body: formData,
             });
 
             if (!response.ok) {
@@ -150,14 +159,25 @@ export function EditProductForm() {
                         />
                     </div>
                     <div className="mb-4">
-                        <label htmlFor="productImage" className="block text-lg mb-2">Upload Product Image</label>
+                        <label htmlFor="productImage" className="block text-sm font-medium text-gray-700">Upload New Image</label>
                         <input
                             type="file"
                             id="productImage"
                             accept="image/*"
-                            className="block w-full p-2 border border-gray-300 rounded"
+                            onChange={(e) => setImageFile(e.target.files[0])}
+                            className="mt-2 p-2 w-full border border-gray-300 rounded"
                         />
                     </div>
+                    {productData.image_url && (
+                        <div className="mb-4">
+                            <p className="text-sm text-gray-600">Current image:</p>
+                            <img
+                                src={`http://localhost:5000${productData.image_url}`}
+                                alt="Current product"
+                                className="mt-2 w-40 h-auto border rounded shadow-sm"
+                            />
+                        </div>
+                    )}
                     <div className="flex justify-between">
                         <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded">
                             Save Product
