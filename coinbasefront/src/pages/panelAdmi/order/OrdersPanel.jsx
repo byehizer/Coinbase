@@ -86,7 +86,7 @@ export function OrdersPanel() {
                                 <th className="py-2 px-4 border">Client Email</th>
                                 <th className="py-2 px-4 border">Order Date</th>
                                 <th className="py-2 px-4 border">Total</th>
-                                <th className="py-2 px-4 border">Status</th>
+                                <th className="py-2 px-4 border">Order Status</th>
                                 <th className="py-2 px-4 border">Payment</th>
                                 <th className="py-2 px-4 border">Actions</th>
                             </tr>
@@ -104,7 +104,6 @@ export function OrdersPanel() {
                                     <td className="py-2 px-4 border flex justify-center items-center space-x-2">
                                         <button className="bg-yellow-500 text-white px-3 py-1 rounded" onClick={() => handleGoEdit(order)}>Edit</button>
                                         <button className="bg-red-500 text-white px-3 py-1 rounded" onClick={() => deleteOrder(order.id)}>Delete</button>
-                                        <button className="bg-green-500 text-white px-3 py-1 rounded">Change Status</button>
                                     </td>
                                 </tr>
                             ))}
@@ -121,12 +120,11 @@ export function OrdersPanel() {
                             <p><strong>Client Email:</strong> {order.client_email}</p>
                             <p><strong>Order Date:</strong> {order.order_date}</p>
                             <p><strong>Total:</strong> ${order.total}</p>
-                            <p><strong>Status:</strong> {order.status}</p>
+                            <p><strong>Order Status:</strong> {order.status}</p>
                             <p><strong>Payment Method:</strong> {order.payment?.method}</p>
                             <div className="mt-4 flex justify-center space-x-4">
                                 <button className="bg-yellow-500 text-white px-3 py-1 rounded" onClick={() => handleGoEdit(order)}>Edit</button>
                                 <button className="bg-red-500 text-white px-3 py-1 rounded" onClick={() => deleteOrder(order.id)}>Delete</button>
-                                <button className="bg-green-500 text-white px-3 py-1 rounded">Change Status</button>
                             </div>
                         </div>
                     ))}

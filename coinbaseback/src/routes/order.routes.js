@@ -1,5 +1,7 @@
 import { Router } from "express";
 import { OrderController } from "../controllers/order.controller.js";
+import { uploadSingleImage } from "../middlewares/multer.config.js";
+
 
 export const orderRouter = Router();
 
@@ -9,5 +11,5 @@ orderRouter.get("/", OrderController.getAll);
 orderRouter.get("/:id_order", OrderController.getById);
 orderRouter.post("/", OrderController.create);
 orderRouter.put("/:id_order/status", OrderController.updateStatus);
-orderRouter.put("/:id_order", OrderController.update);
+orderRouter.put("/:id_order", uploadSingleImage("receipts", "receipt") ,OrderController.update);
 orderRouter.delete("/:id_order", OrderController.delete);

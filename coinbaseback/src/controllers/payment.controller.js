@@ -41,7 +41,7 @@ export class PaymentController {
 
         let receipt = null;
         if (req.file) {
-            receipt = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+            receipt = `/uploads/receipts/${req.file.filename}`;
         }
 
         try {
@@ -93,14 +93,20 @@ export class PaymentController {
 
     static async update(req, res) {
         const { id_payment } = req.params;
-        const { method, status, receipt } = req.body;
+        const { method, status } = req.body;
+
+        let dataToUpdate = {
+            method,
+            status,
+        };
+
+        if (req.file) {
+            dataToUpdate.receipt = `/uploads/receipts/${req.file.filename}`;
+        }
 
         try {
-            const updatedPayment = await PaymentService.update(id_payment, {
-                method,
-                status,
-                receipt
-            });
+            const updatedPayment = await PaymentService.update(id_payment, dataToUpdate);
+
 
             res.json({
                 message: "Payment updated successfully",

@@ -14,8 +14,13 @@ export function EditOrderForm() {
         total: "",
         status: "pending",
         payment_method: "",
+        payment_status: "pending", 
         id_payment: "",
     });
+
+    const [receipt, setReceipt] = useState(null); 
+    const [existingReceipt, setExistingReceipt] = useState(null); 
+
 
     useEffect(() => {
         if (order) {
@@ -26,8 +31,13 @@ export function EditOrderForm() {
                 total: order.total || "",
                 status: order.status || "pending",
                 payment_method: order.payment?.method || "",
+                payment_status: order.payment?.status || "pending",
                 id_payment: order.payment?.id || "",
             });
+
+            if (order.payment?.receipt) {
+                setExistingReceipt(`http://localhost:5000${order.payment.receipt}`)
+            }
         }
     }, [order]);
 
@@ -36,16 +46,33 @@ export function EditOrderForm() {
         setOrderData(prev => ({ ...prev, [name]: value }));
     };
 
+
+    const handleReceiptChange = (e) => {
+        setReceipt(e.target.files[0]);
+    };
+
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         try {
+            const formData = new FormData();
+            formData.append("client_name", orderData.client_name);
+            formData.append("client_email", orderData.client_email);
+            formData.append("order_date", orderData.order_date);
+            formData.append("total", Number(orderData.total));
+            formData.append("status", orderData.status);
+            formData.append("payment_method", orderData.payment_method);
+            formData.append("id_payment", parseInt(orderData.id_payment));
+            formData.append("payment_status", orderData.payment_status);
+
+            if (receipt) {
+                formData.append("receipt", receipt);
+            }
+
             const res = await fetch(`http://localhost:5000/api/orders/${order.id}`, {
                 method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(orderData),
+                body: formData,
             });
 
             if (!res.ok) throw new Error("Failed to update");
@@ -136,6 +163,43 @@ export function EditOrderForm() {
                             <option value="Google_Pay">Google Pay</option>
                             <option value="Cripto">Crypto</option>
                         </select>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium">Payment Status</label>
+                        <select
+                            name="payment_status"
+                            value={orderData.payment_status}
+                            onChange={handleChange}
+                            className="w-full border p-2 rounded"
+                            required
+                        >
+                            <option value="">Select a status</option>
+                            <option value="pending">Pending</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                    </div>
+
+        
+                    
+                    <div>
+                        <label className="block text-sm font-medium">Receipt (optional)</label>
+                        {existingReceipt && (
+                            <div className="mb-2">
+                                <img
+                                    src={existingReceipt}
+                                    alt="Current Receipt"
+                                    className="max-w-lg max-h-72 rounded shadow-md border"
+                                />
+                            </div>
+                        )}
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleReceiptChange}
+                            className="w-full border p-2 rounded"
+                        />
                     </div>
 
 

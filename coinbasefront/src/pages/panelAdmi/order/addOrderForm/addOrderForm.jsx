@@ -7,7 +7,8 @@ export function AddOrdersForm() {
         client_email: "",
         order_date: "",
         total: "",
-        status: "pending",
+        order_status: "pending",   
+        payment_status: "pending", 
         method_payment: "",
         address: "",
         city: "",
@@ -42,12 +43,12 @@ export function AddOrdersForm() {
                 }),
             });
             const deliveryData = await deliveryRes.json();
-            console.log("Delivery response:", deliveryData);
             if (!deliveryRes.ok) throw new Error(deliveryData.message);
 
  
             const paymentFormData = new FormData();
             paymentFormData.append("method", formData.method_payment);
+            paymentFormData.append("status", formData.payment_status);
             if (receipt) paymentFormData.append("receipt", receipt);
 
             const paymentRes = await fetch("http://localhost:5000/api/payments", {
@@ -55,9 +56,9 @@ export function AddOrdersForm() {
                 body: paymentFormData,
             });
             const paymentData = await paymentRes.json();
-            console.log("Payment response:", paymentData);
             if (!paymentRes.ok) throw new Error(paymentData.message);
-
+            
+   
             const orderRes = await fetch("http://localhost:5000/api/orders", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -66,7 +67,7 @@ export function AddOrdersForm() {
                     client_email: formData.client_email,
                     order_date: new Date(formData.order_date),
                     total: parseFloat(formData.total),
-                    status: formData.status,
+                    status: formData.order_status,
                     id_delivery: deliveryData.delivery.id,
                     id_payment: paymentData.payment.id,
                 }),
@@ -80,7 +81,7 @@ export function AddOrdersForm() {
                 throw new Error(error.message || "Error creating order");
             }
         } catch (err) {
-            console.error(err);
+            console.error("Error details:", err);
             alert(`Error: ${err.message}`);
         }
     };
@@ -133,11 +134,10 @@ export function AddOrdersForm() {
                     <h3 className="text-lg font-semibold mb-2 mt-6 border-b pb-1">Payment Information</h3>
                     <div className="mb-4">
                         <label className="block text-sm font-medium text-gray-700">Status</label>
-                        <select name="status" value={formData.status} onChange={handleChange} className="mt-2 p-2 w-full border border-gray-300 rounded" required>
+                        <select name="payment_status" value={formData.payment_status} onChange={handleChange} className="mt-2 p-2 w-full border border-gray-300 rounded" required>
                             <option value="pending">Pending</option>
-                            <option value="paid">Paid</option>
-                            <option value="shipped">Shipped</option>
-                            <option value="delivered">Delivered</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
                         </select>
                     </div>
                     <div className="mb-4">
@@ -157,6 +157,17 @@ export function AddOrdersForm() {
                     <div className="mb-6">
                         <label className="block text-sm font-medium text-gray-700">Receipt (optional)</label>
                         <input type="file" accept="image/*" onChange={handleFileChange} className="mt-2 w-full" />
+                    </div>
+
+                    <h3 className="text-lg font-semibold mb-2 mt-6 border-b pb-1">Order Information</h3>
+                    <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700">Order Status</label>
+                        <select name="order_status" value={formData.order_status} onChange={handleChange} className="mt-2 p-2 w-full border border-gray-300 rounded" required>
+                            <option value="pending">Pending</option>
+                            <option value="paid">Paid</option>
+                            <option value="shipped">Shipped</option>
+                            <option value="delivered">Delivered</option>
+                        </select>
                     </div>
 
 

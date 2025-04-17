@@ -52,19 +52,35 @@ export class OrderController {
     static async update(req, res) {
         try {
             const id_order = Number(req.params.id_order);
-            const {client_name,client_email,total,status,id_payment,id_delivery,payment_method} = req.body;
+            const { client_name, client_email, order_date, total, status, id_payment, id_delivery, payment_method, payment_status } = req.body;
+            
+            const parsedTotal = parseFloat(total);
+            const parsedIdPayment = id_payment ? Number(id_payment) : null;
+            const parsedIdDelivery = id_delivery ? Number(id_delivery) : null;
+            
 
             const updatedOrder = await OrderService.update(id_order, {
                 client_name,
                 client_email,
-                total,
+                order_date,
+                total: parsedTotal,
                 status,
-                id_payment,
-                id_delivery,
+                id_payment: parsedIdPayment,
+                id_delivery: parsedIdDelivery,
+               
             });
 
             if (id_payment && payment_method) {
-                await PaymentService.update(id_payment, {method: payment_method,});
+                const paymentUpdateData = {
+                    method: payment_method,
+                    status: payment_status,
+                };
+                console.log("Received file:", req.file)
+                if (req.file) {
+                    paymentUpdateData.receipt = `/uploads/receipts/${req.file.filename}`;
+                }
+
+                await PaymentService.update(parsedIdPayment, paymentUpdateData);
             }
 
             res.json({
@@ -72,6 +88,7 @@ export class OrderController {
                 order: updatedOrder,
             });
         } catch (error) {
+            console.error("Error in OrderController.update:", error); 
             res.status(500).json({
                 error: "Error updating order",
                 details: error.message,

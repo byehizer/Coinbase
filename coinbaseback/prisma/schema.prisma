@@ -58,6 +58,7 @@ model Order {
   OrderDetail   OrderDetail[]
 }
 
+
 model OrderDetail {
   id_order_detail Int      @id @default(autoincrement())
   id_order        Int

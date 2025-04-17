@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { PaymentController } from "../controllers/payment.controller.js";
-import upload from "../middlewares/upload.js";
+import { uploadSingleImage } from "../middlewares/multer.config.js";
 
 export const paymentRouter = Router();
 
@@ -8,7 +8,7 @@ export const paymentRouter = Router();
 
 paymentRouter.get("/", PaymentController.getAll);
 paymentRouter.get("/:id_payment", PaymentController.getById);
-paymentRouter.post("/", upload.single("receipt") ,PaymentController.create);
-paymentRouter.put("/:id_payment", PaymentController.update); 
+paymentRouter.post("/", uploadSingleImage("receipts", "receipt") ,PaymentController.create);
+paymentRouter.put("/:id_payment", uploadSingleImage("receipts", "receipt") ,PaymentController.update); 
 paymentRouter.put("/:id_payment/status", PaymentController.updateStatus);
 paymentRouter.delete("/:id_payment", PaymentController.delete);
