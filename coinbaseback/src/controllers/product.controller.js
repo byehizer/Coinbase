@@ -1,4 +1,6 @@
 import { ProductService } from "../services/product.service.js";
+import fs from "fs/promises";
+import path from "path";
 
 export class ProductController {
   static async getAll(req, res) {
@@ -88,17 +90,32 @@ export class ProductController {
 
   static async update(req, res) {
     const id_product = parseInt(req.params.id_product, 10);
-    const { name, description, year, country_origin, price, stock, image_url } =
-      req.body;
+    const { name, description, year, country_origin, price, stock } = req.body;
 
     try {
+      const existingProduct = await ProductService.getById(id_product);
+      let image_url = existingProduct.image_url;
+      if (req.file) {
+        image_url = `/uploads/${req.file.filename}`;
+
+        if (existingProduct.image_url) {
+          const oldImagePath = path.join(
+            "uploads",
+            path.basename(existingProduct.image_url)
+          );
+          await fs.unlink(oldImagePath).catch((err) => {
+            console.error("Error deleting old image:", err.message);
+          });
+        }
+      }
+
       const updatedProduct = await ProductService.update(id_product, {
         name,
         description,
-        year: year ? parseInt(year, 10) : undefined,
+        year: parseInt(year),
         country_origin,
-        price: price ? parseFloat(price) : undefined,
-        stock: stock ? parseInt(stock, 10) : undefined,
+        price: parseFloat(price),
+        stock: parseInt(stock),
         image_url,
       });
 
@@ -107,9 +124,9 @@ export class ProductController {
         product: updatedProduct,
       });
     } catch (error) {
-      res.status(500).json({
-        message: `Error updating product: ${error.message}`,
-      });
+      res
+        .status(500)
+        .json({ message: `Error updating product: ${error.message}` });
     }
   }
 
@@ -117,11 +134,31 @@ export class ProductController {
     const { id_product } = req.params;
 
     try {
+      // 1. Obtener el producto antes de eliminarlo
+      const product = await ProductService.getById(Number(id_product));
+      if (!product) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+
+      // 2. Eliminar la imagen si existe
+      if (product.image_url) {
+        const imagePath = path.join(
+          "uploads",
+          path.basename(product.image_url)
+        );
+        try {
+          await fs.unlink(imagePath);
+          console.log("Imagen eliminada:", imagePath);
+        } catch (err) {
+          console.error("No se pudo eliminar la imagen:", err.message);
+          // Opcional: seguir aunque no se pueda borrar la imagen
+        }
+      }
+
+      // 3. Eliminar el producto
       await ProductService.delete(Number(id_product));
 
-      res.json({
-        message: "Product deleted successfully",
-      });
+      res.json({ message: "Product deleted successfully" });
     } catch (error) {
       res.status(500).json({
         message: `Error deleting product: ${error.message}`,

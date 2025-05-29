@@ -5,6 +5,7 @@ import { createToken } from "../utils/jwt.js";
 export class AuthController {
   static async login(req, res) {
     const { email, password } = req.body;
+    console.log(await hashPassword(password));
     try {
       const user = await UserService.getByEmail({ email });
       if (!user) {

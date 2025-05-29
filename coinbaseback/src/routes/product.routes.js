@@ -15,6 +15,7 @@ productRouter.put(
   "/:id_product",
   authenticate,
   authorization("admin"),
+  upload.single("image"),
   ProductController.update
 );
 productRouter.delete(
