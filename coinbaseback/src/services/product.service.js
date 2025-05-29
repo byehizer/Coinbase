@@ -18,10 +18,10 @@ export class ProductService {
             data: {
             name,
             description,
-            year: parseInt(year, 10),
+            year,
             country_origin,
-            price: parseFloat(price),
-            stock: parseInt(stock, 10),
+            price,
+            stock,
             image_url
             },
         });
