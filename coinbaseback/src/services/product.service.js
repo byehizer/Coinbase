@@ -16,13 +16,13 @@ export class ProductService {
     static async create({ name, description, year, country_origin, price, stock, image_url }) {
         return prisma.product.create({
             data: {
-                name,
-                description,
-                year,
-                country_origin,
-                price,
-                stock,
-                image_url
+            name,
+            description,
+            year: parseInt(year, 10),
+            country_origin,
+            price: parseFloat(price),
+            stock: parseInt(stock, 10),
+            image_url
             },
         });
     }

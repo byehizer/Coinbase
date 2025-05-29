@@ -1,5 +1,5 @@
 import { UserService } from "../services/user.service.js";
-import { verifyPassword } from "../utils/hash.js";
+import { hashPassword, verifyPassword } from "../utils/hash.js";
 import { createToken } from "../utils/jwt.js";
 
 export class AuthController {

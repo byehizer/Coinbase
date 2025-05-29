@@ -24,6 +24,7 @@ export function authenticate(req, res, next) {
 
         next();
     } catch (error) {
+        console.error("Error al verificar token:", error.message);
         res.json({
             error: "Hubo un error con el acceso",
             detail: error.message,

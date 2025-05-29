@@ -34,7 +34,8 @@ export class ProductController {
     }
 
     static async create(req, res) {
-        const { name, description, year, country_origin, price, stock, image_url } = req.body;
+        const { name, description, year, country_origin, price, stock } = req.body;
+        const image_url = `/uploads/${req.file.filename}`;
 
         try {
             const newProduct = await ProductService.create({

@@ -10,6 +10,8 @@ import { contactRouter } from "./routes/contact.routes.js";
 import { messageRouter } from "./routes/message.routes.js";
 import { usersRouter } from "./routes/user.routes.js";
 import { authRouter } from "./routes/auth.routes.js";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const app = express();
 const PORT = 5000; //La DB de google nos va a dar un puerto, asi que lo vamos a tener que cambiar mas adelante
@@ -22,6 +24,12 @@ app.use(
     origin: "http://localhost:5173",
   })
 );
+
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Configuración de carpeta pública
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.get("/", (request, response) => {
   response.json({
@@ -40,7 +48,6 @@ app.use("/api/contact", contactRouter);
 app.use("/api/messages", messageRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/auth", authRouter);
-//Falta el de user pero no creo que lo usemos
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

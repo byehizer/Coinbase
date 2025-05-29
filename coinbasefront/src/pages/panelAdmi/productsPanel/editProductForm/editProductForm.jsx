@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useModal } from "../../../../context/ModalContext";
 import { toast } from "react-toastify";
+import { useAuth } from "../../../../context/AuthContext";
 
 
 export function EditProductForm() {
@@ -9,7 +10,7 @@ export function EditProductForm() {
     const navigate = useNavigate();
     const location = useLocation();
     const product = location.state?.product || {}
-
+    const { token } =useAuth();
     const [productData, setProductData] = useState({
         name: "",
         description: "",
@@ -48,8 +49,8 @@ export function EditProductForm() {
             const response = await fetch(`http://localhost:5000/api/products/${product.id}`, {
                 method: "PUT",
                 headers: {
-                    "Content-Type": "application/json"
-                    //"Authorization": `Bearer ${token}`, Hacer el AuthContext
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`, 
                 },
                 body: JSON.stringify(productData),
             });

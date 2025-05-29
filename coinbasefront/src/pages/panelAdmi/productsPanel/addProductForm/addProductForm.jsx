@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useAuth } from "../../../../context/AuthContext";
 
 export function AddProductForm() {
     const [productData, setProductData] = useState({
@@ -10,9 +11,11 @@ export function AddProductForm() {
         country_origin: "",
         price: "",
         stock: "",
-        image_url: "",
     });
+    const [imageFile, setImageFile] = useState(null);
+    const { token } =useAuth();
 
+    
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -27,28 +30,33 @@ export function AddProductForm() {
         navigate("/admin/products");
     };
 
+    const handleFileChange = (e) => {
+        setImageFile(e.target.files[0]);
+    };
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const product = {
-            name: productData.name,
-            description:productData.description,
-            year: parseInt(productData.year),
-            country_origin:productData.country_origin,
-            price: parseFloat(productData.price),
-            stock: parseInt(productData.stock),
-            image_url:productData.image_url,
-        };
+         const formData = new FormData();
+        formData.append("name", productData.name);
+        formData.append("description", productData.description);
+        formData.append("year", productData.year);
+        formData.append("country_origin", productData.country_origin);
+        formData.append("price", productData.price);
+        formData.append("stock", productData.stock);
+        if (imageFile) {
+            formData.append("image", imageFile);
+        }
 
 
         try {
             const response = await fetch("http://localhost:5000/api/products", {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
                 },
-                body: JSON.stringify(product),
+                body: formData,
             });
 
             if (response.ok) {
@@ -56,7 +64,7 @@ export function AddProductForm() {
                 navigate("/admin/products");
             } else {
                 const errorData = await response.json();
-                toast.error(`Error: ${errorData.message || "Could not add product"}`);
+                toast.error(`Error: ${ errorData.message || "Could not add product"}`);
             }
         } catch (error) {
             console.error("Error adding product:", error);
@@ -141,6 +149,7 @@ export function AddProductForm() {
                             type="file"
                             id="productImage"
                             accept="image/*"
+                            onChange={handleFileChange}
                             className="block w-full p-2 border border-gray-300 rounded"
                         />
                     </div>

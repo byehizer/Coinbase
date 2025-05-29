@@ -2,6 +2,7 @@ import { Router } from "express";
 import { ProductController } from "../controllers/product.controller.js";
 import { authorization } from "../middlewares/authorization.js";
 import { authenticate } from "../middlewares/authenticate.js";
+import upload from "../middlewares/upload.js";
 
 export const productRouter = Router();
 
@@ -9,16 +10,16 @@ export const productRouter = Router();
 
 productRouter.get("/", ProductController.getAll);
 productRouter.get("/:id_product", ProductController.getById);
-productRouter.post("/", authenticate, authorization, ProductController.create);
+productRouter.post("/", authenticate, authorization("admin"),upload.single("image"), ProductController.create);
 productRouter.put(
   "/:id_product",
   authenticate,
-  authorization,
+  authorization("admin"),
   ProductController.update
 );
 productRouter.delete(
   "/:id_product",
   authenticate,
-  authorization,
+  authorization("admin"),
   ProductController.delete
 );
