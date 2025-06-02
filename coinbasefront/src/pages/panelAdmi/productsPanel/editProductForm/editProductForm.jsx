@@ -31,7 +31,7 @@ export function EditProductForm() {
         price: product.price ? parseFloat(product.price) : "",
         stock: product.stock ? parseInt(product.stock, 10) : "",
       });
-      
+
       if (product.image_url) {
         setPreviewImage(`http://localhost:5000${product.image_url}`);
       }
@@ -187,17 +187,46 @@ export function EditProductForm() {
           </div>
 
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">
-              Current Image
-            </label>
             {previewImage && (
-              <div className="mt-2 flex justify-center">
-      <img
-        src={previewImage}
-        alt="Preview"
-        className="h-40 object-contain border rounded"
-      />
-    </div>
+              <div className="mt-8 relative">
+                <h3 className="text-sm font-medium text-gray-700">Preview view</h3>
+                <div className="flex justify-center mt-6 relative">
+                  <div
+                    className="w-64 rounded-lg border bg-gray-400/10 shadow-xl flex flex-col transform transition-transform duration-300 hover:scale-105 z-[50] relative"
+                    style={{ transformOrigin: "center" }}
+                  >
+                    <img
+                      src={previewImage}
+                      alt={productData.name}
+                      className="w-full h-48 object-contain bg-white mx-auto"
+                    />
+                    <div className="flex flex-col flex-grow gap-y-4 px-4 py-6 min-h-[340px]">
+                      <h1 className="font-medium text-lg">
+                        {productData.name}
+                      </h1>
+                      <p className="text-sm line-clamp-3">
+                        {productData.description}
+                      </p>
+                      <span className="text-sm text-gray-500">
+                        País de origen: {productData.country_origin}
+                      </span>
+                      <span className="text-sm text-gray-500">
+                        Año: {productData.year}
+                      </span>
+                      <span className="font-medium ">
+                        $ {productData.price}
+                      </span>
+                      <button
+                        type="button"
+                        className="bg-indigo-600 text-slate-200 mt-auto font-medium border rounded-lg px-4 py-2 cursor-default"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Preview view 
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
 
