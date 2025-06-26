@@ -1,6 +1,7 @@
 import express from "express";
 import morgan from "morgan";
 import cors from "cors";
+import bodyParser from "body-parser";
 import { productRouter } from "./routes/product.routes.js";
 import { orderRouter } from "./routes/order.routes.js";
 import { orderDetailRouter } from "./routes/order_detail.routes.js";
@@ -14,10 +15,18 @@ import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 import { stripeRouter } from "./routes/stripe.routes.js";
+import { StripeController } from "./controllers/stripe.controller.js";
 dotenv.config();
 
 const app = express();
 const PORT = 5000; //La DB de google nos va a dar un puerto, asi que lo vamos a tener que cambiar mas adelante
+
+
+app.post(
+  "/api/stripe/webhook",
+  bodyParser.raw({ type: "application/json" }), // 👈 evita que express.json rompa la firma de Stripe
+  StripeController.handleWebhook
+);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

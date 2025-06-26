@@ -56,4 +56,9 @@ export class DeliveryService {
       where: { id },
     });
   }
+  static async deleteTx(tx, id) {
+    return tx.delivery.delete({
+      where: { id },
+    });
+  }
 }

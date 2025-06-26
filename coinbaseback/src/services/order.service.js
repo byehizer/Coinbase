@@ -94,9 +94,33 @@ export class OrderService {
     });
   }
 
-  static async delete(id) {
-    return prisma.order.delete({
+static async delete(id) {
+  return await prisma.$transaction(async (tx) => {
+    const order = await tx.order.findUnique({
       where: { id },
+      include: {
+        payment: true,
+        delivery: true,
+      },
     });
-  }
+
+    if (!order) {
+      throw new Error("Orden no encontrada");
+    }
+
+    await OrderDetailService.deleteManyByOrderTx(tx, id);
+
+    await tx.order.delete({ where: { id } });
+
+    if (order.id_payment) {
+      await PaymentService.deleteTx(tx, order.id_payment);
+    }
+
+    if (order.id_delivery) {
+      await DeliveryService.deleteTx(tx, order.id_delivery);
+    }
+
+    return { message: "Orden y relaciones eliminadas con éxito" };
+  });
+}
 }

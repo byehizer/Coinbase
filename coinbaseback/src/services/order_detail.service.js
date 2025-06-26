@@ -61,4 +61,14 @@ export class OrderDetailService {
       },
     });
   }
+  static async deleteManyByOrderTx(tx, id_order) {
+    return tx.orderDetail.deleteMany({
+      where: { id_order },
+    });
+  }
+  static async deleteManyByOrder(id_order) {
+    return prisma.orderDetail.deleteMany({
+      where: { id_order },
+    });
+  }
 }
