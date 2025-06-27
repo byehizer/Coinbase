@@ -29,6 +29,8 @@ model Payment {
   method    PaymentMethod
   status    PaymentStatus   @default(pending)
   receipt   String?
+  paymentIntentId  String?       
+  chargeId         String?         
   Order     Order[] @relation("PaymentOrders")
 }
 
@@ -106,6 +108,7 @@ enum PaymentStatus {
   pending
   approved
   rejected
+  refunded
 }
 
 enum OrderStatus {
@@ -113,6 +116,7 @@ enum OrderStatus {
   paid
   shipped
   delivered
+  cancelled
 }
 
 enum UserRole {

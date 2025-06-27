@@ -13,22 +13,26 @@ export class PaymentService {
     });
   }
 
-  static async create({ method, status, receipt }) {
+  static async create({ method, status, receipt, paymentIntentId, chargeId }) {
     return prisma.payment.create({
       data: {
         method,
         status,
-        receipt, // Puede ser null o string
+        receipt, 
+        paymentIntentId,
+        chargeId,
       },
     });
   }
 
-  static async createTx(tx, { method, status, receipt }) {
+  static async createTx(tx, { method, status, receipt, paymentIntentId, chargeId }) {
     return tx.payment.create({
       data: {
         method,
         status,
         receipt,
+        paymentIntentId,
+        chargeId,
       },
     });
   }
@@ -45,10 +49,10 @@ export class PaymentService {
   });
 }
 
-  static async update(id, { method, status, receipt }) {
+  static async update(id, { method, status, receipt, paymentIntentId, chargeId }) {
     return prisma.payment.update({
       where: { id },
-      data: { method, status, receipt },
+      data: { method, status, receipt, paymentIntentId, chargeId },
     });
   }
 

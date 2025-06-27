@@ -42,6 +42,8 @@ export class OrderService {
         method: payment_method,
         status: "pending",
         receipt: null,
+        paymentIntentId: null,
+        chargeId: null,
       });
 
      
