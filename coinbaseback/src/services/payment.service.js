@@ -13,6 +13,14 @@ export class PaymentService {
     });
   }
 
+  static async findByIntentId(paymentIntentId){
+    return prisma.paymentIntentId.findUnique({
+      where: {
+        paymentIntentId,
+      },
+    });
+  }
+
   static async create({ method, status, receipt, paymentIntentId, chargeId }) {
     return prisma.payment.create({
       data: {

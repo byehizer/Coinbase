@@ -84,4 +84,24 @@ export class WebhookService {
 
     return "Zelle"; // fallback final solo si no reconocimos nada
   }
+
+  static async handleChargeRefunded(event) {
+  const charge = event.data.object;
+  const paymentIntentId = charge.payment_intent;
+
+  const payment = await PaymentService.findByIntentId(paymentIntentId);
+  if (!payment) {
+    console.warn("⚠️ No se encontró el pago con paymentIntent:", paymentIntentId);
+    return;
+  }
+
+  const orderId = payment.orderId;
+
+ 
+  await PaymentService.update(orderId, { status: "refunded" });
+  await OrderService.updateStatus(orderId, "cancelled");
+
+  console.log(`🔁 Orden ${orderId} reembolsada vía webhook.`);
+}
+
 }

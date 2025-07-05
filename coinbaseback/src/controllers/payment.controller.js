@@ -131,4 +131,26 @@ export class PaymentController {
             });
         }
     }
+     static async refund(req, res) {
+    const { orderId } = req.params;
+
+    try {
+      const payment = await PaymentService.findByOrderId(parseInt(orderId));
+      if (!payment || !payment.chargeId) {
+        return res.status(404).json({ error: "No se encontró el pago válido para reembolso" });
+      }
+
+      const refund = await stripe.refunds.create({
+        charge: payment.chargeId,
+      });
+
+      await PaymentService.update(orderId, { status: "refunded" });
+      await OrderService.updateStatus(orderId, "cancelled");
+
+      return res.status(200).json({ message: "Reembolso exitoso", refund });
+    } catch (err) {
+      console.error("❌ Error al reembolsar:", err.message);
+      return res.status(500).json({ error: "Error al procesar el reembolso" });
+    }
+  }
 }

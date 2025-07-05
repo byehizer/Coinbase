@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useShoppingCart } from "../context/shoppingcartcontext";
+import { useNavigate } from "react-router-dom";
 
 export function OrderForm() {
   const [formData, setFormData] = useState({
@@ -12,6 +13,7 @@ export function OrderForm() {
   });
   const [paymentMethod, setPaymentMethod] = useState("");
   const { totalAmount, products } = useShoppingCart();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -42,7 +44,7 @@ export function OrderForm() {
         window.location.href = data.url;
       } else {
         // 2. Orden para Venmo/Zelle
-        const res = await fetch("/api/orders/manual", {
+        const res = await fetch("http://localhost:5000/api/orders", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -52,6 +54,7 @@ export function OrderForm() {
 
         const data = await res.json();
         alert("Order created! Check your email to upload the receipt.");
+        navigate("/track-order");
       }
     } catch (err) {
       console.error("Error creating order:", err);
