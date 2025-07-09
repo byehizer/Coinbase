@@ -2,6 +2,8 @@ import Stripe from "stripe";
 import dotenv from "dotenv";
 import { OrderService } from "./order.service.js";
 import { PaymentService } from "./payment.service.js";
+import { sendStripeConfirmationEmail } from "../utils/email.utils.js";
+import { ProductService } from "./product.service.js";
 
 dotenv.config();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -21,6 +23,7 @@ export class WebhookService {
     const charge = await this.getCharge(paymentIntent);
     const paymentMethodEnum = this.resolvePaymentMethod(paymentIntent, charge);
 
+    // 1. Actualizar el estado del pago
     await PaymentService.update(orderId, {
       status: "approved",
       method: paymentMethodEnum,
@@ -28,7 +31,26 @@ export class WebhookService {
       chargeId: charge?.id ?? null,
     });
 
+    // 2. Cambiar estado de la orden
     await OrderService.updateStatus(orderId, "paid");
+
+    // 3. Obtener la orden completa para enviar email
+    const order = await OrderService.getById(orderId);
+
+    if (order) {
+      for (const item of order.products) {
+        await ProductService.decreaseStock(item.id_product, item.quantity);
+      }
+      await sendStripeConfirmationEmail({
+        id: order.id,
+        client_email: order.client_email,
+        client_name: order.client_name,
+      });
+    } else {
+      console.warn(
+        `⚠️ No se encontró la orden con ID ${orderId} para enviar el email`
+      );
+    }
 
     return { orderId, paymentMethodEnum };
   }
@@ -86,22 +108,31 @@ export class WebhookService {
   }
 
   static async handleChargeRefunded(event) {
-  const charge = event.data.object;
-  const paymentIntentId = charge.payment_intent;
+    const charge = event.data.object;
+    const paymentIntentId = charge.payment_intent;
 
-  const payment = await PaymentService.findByIntentId(paymentIntentId);
-  if (!payment) {
-    console.warn("⚠️ No se encontró el pago con paymentIntent:", paymentIntentId);
-    return;
+    const payment = await PaymentService.findByIntentId(paymentIntentId);
+    if (!payment) {
+      console.warn(
+        "⚠️ No se encontró el pago con paymentIntent:",
+        paymentIntentId
+      );
+      return;
+    }
+
+    const orderId = payment.orderId;
+
+    await PaymentService.update(orderId, { status: "refunded" });
+    await OrderService.updateStatus(orderId, "cancelled");
+
+    const order = await OrderService.getById(orderId);
+
+    if (order) {
+      for (const item of order.products) {
+        await ProductService.increaseStock(item.id_product, item.quantity);
+      }
+    }
+
+    console.log(`🔁 Orden ${orderId} reembolsada vía webhook.`);
   }
-
-  const orderId = payment.orderId;
-
- 
-  await PaymentService.update(orderId, { status: "refunded" });
-  await OrderService.updateStatus(orderId, "cancelled");
-
-  console.log(`🔁 Orden ${orderId} reembolsada vía webhook.`);
-}
-
 }

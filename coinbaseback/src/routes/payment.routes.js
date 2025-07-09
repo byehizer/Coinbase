@@ -12,3 +12,4 @@ paymentRouter.post("/", upload.single("receipt") ,PaymentController.create);
 paymentRouter.put("/:id_payment", PaymentController.update); 
 paymentRouter.put("/:id_payment/status", PaymentController.updateStatus);
 paymentRouter.delete("/:id_payment", PaymentController.delete);
+paymentRouter.post("/refund/:orderId", PaymentController.refundOrder);

@@ -1,10 +1,8 @@
 import { OrderService } from "../services/order.service.js";
 import { PaymentService } from "../services/payment.service.js";
-import sendOrderConfirmationEmail from '../utils/email.utils.js';
+import { sendManualPaymentInstructions } from "../utils/email.utils.js";
 
 export class OrderController {
-
-    
   static async getAll(req, res) {
     try {
       const orders = await OrderService.getAll();
@@ -15,13 +13,42 @@ export class OrderController {
         .json({ error: "Error fetching orders", details: error.message });
     }
   }
+  static async rejectOrder(req, res) {
+    const { id } = req.params;
+
+    try {
+      const order = await OrderService.getById(Number(id));
+      if (!order) return res.status(404).json({ error: "Order not found" });
+
+      if (order.status !== "pending") {
+        return res.status(400).json({ error: "Order is not in pending state" });
+      }
+
+      // 1. Marcar orden como cancelada
+      await OrderService.updateStatus(order.id, "cancelled");
+
+      // 2. Marcar pago como rechazado
+      await PaymentService.update(order.id, { status: "rejected" });
+
+      // 3. (Opcional) notificar al cliente por email
+      await sendRejectionEmail({
+        id: order.id,
+        client_email: order.client_email,
+        client_name: order.client_name,
+      });
+
+      res.json({ message: "Order rejected." });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Failed to reject order" });
+    }
+  }
 
   static async getById(req, res) {
     try {
       const order = await OrderService.getById(Number(req.params.id_order));
       if (!order) return res.status(404).json({ error: "Order not found" });
 
-      // Format products for frontend
       const products = order.OrderDetail.map((item) => ({
         name: item.product.name,
         image: item.product.image_url,
@@ -50,10 +77,51 @@ export class OrderController {
     }
   }
 
+  static async approveOrder(req, res) {
+    const { id } = req.params;
+
+    try {
+      const order = await OrderService.getById(Number(id));
+
+      if (!order) return res.status(404).json({ error: "Order not found" });
+      if (order.status !== "pending") {
+        return res.status(400).json({ error: "Order is not pending" });
+      }
+
+      // Actualizar estado a "paid"
+      await OrderService.updateStatus(order.id, "paid");
+
+      // Restar stock
+      for (const item of order.OrderDetail) {
+        await ProductService.decreaseStock(item.id_product, item.quantity);
+      }
+
+      // Marcar pago como aprobado
+      await PaymentService.update(order.id, { status: "approved" });
+
+      // (Opcional) enviar email de confirmación al cliente
+      await sendStripeConfirmationEmail({
+        id: order.id,
+        client_email: order.client_email,
+        client_name: order.client_name,
+      });
+
+      res.json({ success: true });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Error approving order" });
+    }
+  }
+
   static async create(req, res) {
     try {
       const newOrder = await OrderService.create(req.body);
-      await sendOrderConfirmationEmail(order);
+      await sendManualPaymentInstructions({
+        id: newOrder.id,
+        client_email: newOrder.client_email,
+        clientName: newOrder.client_name,
+      });
+
       console.log(newOrder);
       res
         .status(201)

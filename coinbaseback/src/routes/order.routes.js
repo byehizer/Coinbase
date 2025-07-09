@@ -28,3 +28,5 @@ orderRouter.delete(
   authorization,
   OrderController.delete
 );
+orderRouter.post("/orders/:id/approve", OrderController.approveOrder);
+orderRouter.post("/orders/:id/reject", OrderController.rejectOrder);
