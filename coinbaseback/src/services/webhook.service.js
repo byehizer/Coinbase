@@ -37,20 +37,22 @@ export class WebhookService {
     // 3. Obtener la orden completa para enviar email
     const order = await OrderService.getById(orderId);
 
-    if (order) {
-      for (const item of order.products) {
-        await ProductService.decreaseStock(item.id_product, item.quantity);
-      }
-      await sendStripeConfirmationEmail({
-        id: order.id,
-        client_email: order.client_email,
-        client_name: order.client_name,
-      });
-    } else {
+    if (!order) {
       console.warn(
         `⚠️ No se encontró la orden con ID ${orderId} para enviar el email`
       );
+      return;
     }
+
+    for (const detail of order.OrderDetail) {
+      await ProductService.decreaseStock(detail.id_product, detail.quantity);
+    }
+
+    await sendStripeConfirmationEmail({
+      id: order.id,
+      client_email: order.client_email,
+      client_name: order.client_name,
+    });
 
     return { orderId, paymentMethodEnum };
   }

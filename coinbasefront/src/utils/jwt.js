@@ -7,3 +7,9 @@ export function decodeToken(token) {
     return null;
   }
 }
+
+export function isTokenExpired(token) {
+  const decoded = decodeToken(token);
+  if (!decoded?.exp) return true;
+  return decoded.exp * 1000 < Date.now();
+}

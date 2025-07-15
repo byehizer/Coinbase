@@ -62,3 +62,30 @@ export async function sendManualPaymentInstructions({ id, client_email, client_n
     throw error;
   }
 }
+export async function sendRejectionEmail({ id, client_email, client_name }) {
+  const url = `${FRONTEND_URL}/track-order?id=${id}`;
+
+  const msg = {
+    to: client_email,
+    from: process.env.SENDGRID_SENDER,
+    subject: `Order #${id} – Payment Rejected`,
+    html: `
+      <h2>Hello ${client_name},</h2>
+      <p>We’re sorry to inform you that your payment for order <strong>#${id}</strong> was rejected.</p>
+      <p>This might be due to an invalid or missing payment receipt.</p>
+      <p>You can review or upload a new receipt here:</p>
+      <p><a href="${url}" target="_blank">${url}</a></p>
+      <br/>
+      <p>If you have any questions, feel free to contact us.</p>
+      <p>Thank you for your understanding.</p>
+    `,
+  };
+
+  try {
+    await sgMail.send(msg);
+    console.log("✅ Rejection email sent to", client_email);
+  } catch (error) {
+    console.error("❌ Failed to send rejection email:", error.response?.body || error.message);
+    throw error;
+  }
+}

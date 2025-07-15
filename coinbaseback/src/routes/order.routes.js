@@ -7,7 +7,7 @@ export const orderRouter = Router();
 
 //Vamos a tener que agregarle los middlewares cuando el token al iniciar sesion funcione en el frontend, porque en el backend ya esta creado
 
-orderRouter.get("/", authenticate, authorization, OrderController.getAll);
+orderRouter.get("/", authenticate, authorization("admin"), OrderController.getAll);
 orderRouter.get("/:id_order", OrderController.getById);
 orderRouter.post("/", OrderController.create);
 orderRouter.put(

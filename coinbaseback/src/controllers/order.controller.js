@@ -24,13 +24,13 @@ export class OrderController {
         return res.status(400).json({ error: "Order is not in pending state" });
       }
 
-      // 1. Marcar orden como cancelada
+      
       await OrderService.updateStatus(order.id, "cancelled");
 
-      // 2. Marcar pago como rechazado
+
       await PaymentService.update(order.id, { status: "rejected" });
 
-      // 3. (Opcional) notificar al cliente por email
+     
       await sendRejectionEmail({
         id: order.id,
         client_email: order.client_email,

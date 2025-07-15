@@ -2,7 +2,7 @@ import { WebhookService } from "../services/webhook.service.js";
 import { CheckoutService } from "../services/checkout.service.js";
 import dotenv from "dotenv";
 import Stripe from "stripe";
-const { sendOrderConfirmationEmail } = require('../utils/email.utils');
+
 dotenv.config();
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -23,7 +23,7 @@ export class StripeController {
       switch (event.type) {
         case "checkout.session.completed":
           const result = await WebhookService.handleCheckoutCompleted(event);
-    
+
           console.log(
             `✅ Orden ${result.orderId} pagada con ${result.paymentMethodEnum}`
           );
@@ -43,6 +43,10 @@ export class StripeController {
           await WebhookService.handleChargeRefunded(event);
           break;
 
+        case "payment_intent.succeeded":
+          const paymentIntent = event.data.object;
+          console.log("💰 Pago exitoso:", paymentIntent.id);
+          break;
         default:
           console.log(`ℹ️ Evento no manejado: ${event.type}`);
       }

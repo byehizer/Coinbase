@@ -12,7 +12,7 @@ export function createToken({ id_user, name, email, role }) {
     },
     SECRET,
     {
-      expiresIn: "30m",
+      expiresIn: "10s",
     }
   );
 }
