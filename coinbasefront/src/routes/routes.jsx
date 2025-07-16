@@ -14,6 +14,9 @@ import { OrderForm } from "../pages/orderform"
 import TrackOrderPage from "../pages/trackorderpage"
 import OrderDetailPage from "../pages/orderdetailpage"
 import AdminLogin from "../pages/panelAdmi/AdminLogin"
+import { SucessPage } from "../pages/sucesspage";
+import CancelPage from "../pages/cancelpage";
+import AboutPage from "../pages/AboutPage";
 
 
 
@@ -43,6 +46,9 @@ export const appClientRoutes = [
     { path: "/track-order", element: <TrackOrderPage />, name: "Track Order" },
     { path: "/order-detail", element: <OrderDetailPage />, name: "Order Detail" },
     { path: "/contact", element: <ContactPage />, name: "contactPage" },
+    { path: "/success", element: <SucessPage/>, name: "Sucesspage" },
+    { path: "/cancel", element: <CancelPage/>, name: "Cancelpage" },
+    { path: "/about", element: <AboutPage/>, name: "Aboutpage" },
 
 ];
     

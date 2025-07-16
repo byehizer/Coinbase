@@ -10,16 +10,17 @@ export default function EditOrderForm() {
   const token = localStorage.getItem("token");
   const guard = useGuardToken();
   const { openModal } = useModal();
+  const [originalOrder, setOriginalOrder] = useState(null);
 
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isReadOnly, setIsReadOnly] = useState(false);
 
   /* ─── Obtener orden completa desde DB ─── */
   useEffect(() => {
     if (guard()) return;
 
     const id = location.state?.order?.id;
-    console.log(location.state?.order);
     if (!id) {
       toast.error("Order not found");
       navigate("/admin/orders");
@@ -33,6 +34,8 @@ export default function EditOrderForm() {
         });
         if (res.status === 401) return guard();
         const d = await res.json();
+        setOriginalOrder({ ...d });
+        setIsReadOnly(["cancelled", "delivered"].includes(d.status));
 
         // Flatten delivery y tracking
         setOrder({
@@ -60,7 +63,7 @@ export default function EditOrderForm() {
 
   /* ─── PUT /orders/:id_order ─── */
   const updateOrder = async () => {
-    if (guard()) return;   
+    if (guard()) return;
     const body = {
       clientName: order.clientName,
       clientEmail: order.clientEmail,
@@ -94,17 +97,16 @@ export default function EditOrderForm() {
       });
       toast.success("Order updated");
       setTimeout(() => {
-      navigate("/admin/orders");
-    }, 1500);
+        navigate("/admin/orders");
+      }, 1500);
     } catch {
       toast.error("Update failed");
-      
     }
   };
 
   /* ─── PATCH accept / reject / refund (sin cambios) ─── */
   const patchAction = async (action) => {
-    if (guard()) return;   
+    if (guard()) return;
     try {
       const res = await fetch(
         `http://localhost:5000/api/orders/${order.id}/${action}`,
@@ -124,15 +126,15 @@ export default function EditOrderForm() {
       });
       toast.success(`Order ${action}ed`);
       setTimeout(() => {
-      navigate("/admin/orders");
-    }, 1500);
+        navigate("/admin/orders");
+      }, 1500);
     } catch {
       toast.error(`Error trying to ${action} order`);
     }
   };
 
   const confirmAndAct = async (action, title, text) => {
-    if (guard()) return;   
+    if (guard()) return;
     const confirmed = await openModal({ title, text });
     if (!confirmed) return;
 
@@ -149,8 +151,8 @@ export default function EditOrderForm() {
         if (!res.ok) throw new Error(await res.text());
         toast.success("Order deleted");
         setTimeout(() => {
-      navigate("/admin/orders");
-    }, 1500);
+          navigate("/admin/orders");
+        }, 1500);
       } catch {
         toast.error("Error deleting order");
       }
@@ -161,14 +163,18 @@ export default function EditOrderForm() {
 
   /* ─── lógica de botones ─── */
   const isVenmoZelle = ["venmo", "zelle"].includes(
-    order.paymentMethod?.toLowerCase()
+    originalOrder?.paymentMethod?.toLowerCase()
   );
-  const showAcceptReject = order.status === "pending" && isVenmoZelle;
-  const showRefund = order.status === "paid" && !isVenmoZelle;
+
+  const showAcceptReject = originalOrder?.status === "pending" && isVenmoZelle;
+
+  const showRefund = originalOrder?.status === "paid" && !isVenmoZelle;
+
+  const showDelete = originalOrder?.status === "cancelled";
 
   /* ─── UI ─── */
   return (
-    <div className="p-6 max-w-3xl mx-auto bg-white rounded shadow">
+    <div className="p-6 max-w-3xl mx-auto bg-gray-300 rounded shadow">
       <h2 className="text-2xl font-bold mb-6">Edit Order #{order.id}</h2>
 
       <div className="grid gap-4">
@@ -179,6 +185,7 @@ export default function EditOrderForm() {
             className="w-full border p-2 rounded"
             value={order.clientName}
             onChange={(e) => setField("clientName", e.target.value)}
+            disabled={isReadOnly}
           />
         </label>
         <label>
@@ -187,6 +194,7 @@ export default function EditOrderForm() {
             className="w-full border p-2 rounded"
             value={order.clientEmail}
             onChange={(e) => setField("clientEmail", e.target.value)}
+            disabled={isReadOnly}
           />
         </label>
 
@@ -197,6 +205,7 @@ export default function EditOrderForm() {
             className="w-full border p-2 rounded"
             value={order.address}
             onChange={(e) => setField("address", e.target.value)}
+            disabled={isReadOnly}
           />
         </label>
         <label>
@@ -205,6 +214,7 @@ export default function EditOrderForm() {
             className="w-full border p-2 rounded"
             value={order.city}
             onChange={(e) => setField("city", e.target.value)}
+            disabled={isReadOnly}
           />
         </label>
         <label>
@@ -213,6 +223,7 @@ export default function EditOrderForm() {
             className="w-full border p-2 rounded"
             value={order.country}
             onChange={(e) => setField("country", e.target.value)}
+            disabled={isReadOnly}
           />
         </label>
 
@@ -223,6 +234,7 @@ export default function EditOrderForm() {
             className="w-full border p-2 rounded"
             value={order.status}
             onChange={(e) => setField("status", e.target.value)}
+            disabled={isReadOnly}
           >
             <option value="pending">Pending</option>
             <option value="paid">Paid</option>
@@ -238,6 +250,7 @@ export default function EditOrderForm() {
             className="w-full border p-2 rounded"
             value={order.trackingStatus}
             onChange={(e) => setField("trackingStatus", e.target.value)}
+            disabled={isReadOnly}
           >
             <option value="">--</option>
             <option value="pending">Pending</option>
@@ -246,23 +259,63 @@ export default function EditOrderForm() {
           </select>
         </label>
 
+        <div className="mt-8">
+          <h3 className="text-lg font-semibold mb-2">Products:</h3>
+          <ul className="space-y-4">
+            {order.products?.map((item, i) => (
+              <li
+                key={i}
+                className="flex items-center gap-4 border p-2 rounded bg-white"
+              >
+                <img
+                  src={`http://localhost:5000${item.image}`}
+                  alt={item.name}
+                  className="w-16 h-16 object-cover rounded"
+                />
+                <div>
+                  <p className="font-semibold">{item.name}</p>
+                  <p>Quantity: {item.quantity}</p>
+                  <p>Unit Price: ${item.unitPrice}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+
         {/* Comprobante de pago */}
         {order.receipt && isVenmoZelle && (
-          <div>
+          <div className="flex flex-col items-center mt-6 bg-white">
             <h3 className="font-semibold mb-2">Payment Receipt:</h3>
-            <a href={order.receipt} target="_blank" rel="noopener noreferrer">
-              <img
-                src={order.receipt}
-                alt="receipt"
-                className="max-w-xs border rounded"
-              />
-            </a>
+
+            {order.receipt.endsWith(".pdf") ? (
+              <a
+                href={`http://localhost:5000${order.receipt}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 underline"
+              >
+                Ver comprobante PDF
+              </a>
+            ) : (
+              <a
+                href={`http://localhost:5000${order.receipt}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <img
+                  src={`http://localhost:5000${order.receipt}`}
+                  alt="receipt"
+                  className="max-w-sm max-h-50 border rounded shadow-md "
+                />
+              </a>
+            )}
           </div>
         )}
       </div>
 
       {/* Botones */}
-      <div className="flex flex-wrap gap-4 mt-6">
+      <div className="flex flex-wrap justify-center gap-4 mt-6">
+
         <button
           className="bg-blue-600 text-white px-4 py-2 rounded"
           onClick={updateOrder}
@@ -299,7 +352,7 @@ export default function EditOrderForm() {
             Refund
           </button>
         )}
-        {order.status === "cancelled" && (
+        {showDelete && (
           <button
             className="bg-red-800 text-white px-4 py-2 rounded"
             onClick={() =>

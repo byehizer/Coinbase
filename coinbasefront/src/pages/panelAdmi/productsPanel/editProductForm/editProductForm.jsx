@@ -20,6 +20,7 @@ export  default function EditProductForm() {
   });
   const [file, setFile] = useState(null);
   const [previewImage, setPreviewImage] = useState("");
+  
 
   useEffect(() => {
     if (product) {
