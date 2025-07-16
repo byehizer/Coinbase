@@ -26,6 +26,54 @@ export class OrderService {
       },
     });
   }
+  
+  static async findByPaymentId(paymentId) {
+  return prisma.order.findFirst({
+    where: { id_payment: paymentId },
+    include: {
+      OrderDetail: true,      // para stock
+    },
+  });
+}
+
+  static   async deleteCascade(id) {
+    return prisma.$transaction(async (tx) => {
+      // 1. Traer la orden con IDs de delivery y payment
+      const order = await tx.order.findUnique({
+        where: { id },
+        select: { id, id_payment: true, id_delivery: true },
+      });
+      if (!order) throw new Error("Order not found");
+
+      // 2. Borrar líneas de detalle (por claridad; el ON DELETE CASCADE también sirve)
+      await tx.orderDetail.deleteMany({ where: { id_order: id } });
+
+      // 3. Borrar la orden principal
+      await tx.order.delete({ where: { id } });
+
+      // 4. Borrar PAYMENT solo si ninguna otra orden lo usa
+      if (order.id_payment) {
+        const stillUsed = await tx.order.count({
+          where: { id_payment: order.id_payment },
+        });
+        if (stillUsed === 0) {
+          await tx.payment.delete({ where: { id: order.id_payment } });
+        }
+      }
+
+      // 5. Borrar DELIVERY solo si ninguna otra orden lo usa
+      if (order.id_delivery) {
+        const stillUsed = await tx.order.count({
+          where: { id_delivery: order.id_delivery },
+        });
+        if (stillUsed === 0) {
+          await tx.delivery.delete({ where: { id: order.id_delivery } });
+        }
+      }
+
+      return order; // opcional: podrías devolver null si no lo necesitás
+    });
+  }
 
   static async create({
     client_name,
@@ -85,23 +133,30 @@ export class OrderService {
       data: { status },
     });
   }
-
-  static async update(
-    id,
-    { client_name, client_email, total, status, id_payment, id_delivery }
-  ) {
-    return prisma.order.update({
-      where: { id },
-      data: {
-        client_name,
-        client_email,
-        total,
-        status,
-        id_payment,
-        id_delivery,
+static async update(id, { client_name, client_email, status }) {
+  return prisma.order.update({
+    where: { id },
+    data: {
+      client_name,
+      client_email,
+      status,
+    },
+    include: {
+      delivery: true,
+      payment: true,
+      OrderDetail: {
+        include: { product: true },
       },
+    },
+  });
+}
+async getMinimal(id) {
+    return prisma.order.findUnique({
+      where: { id },
+      select: { id_delivery: true },
     });
   }
+
 
   static async delete(id) {
     return await prisma.$transaction(async (tx) => {

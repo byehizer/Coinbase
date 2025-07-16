@@ -4,7 +4,7 @@ import { useModal } from "../../../../context/ModalContext";
 import { toast } from "react-toastify";
 import { useAuth } from "../../../../context/AuthContext";
 
-export function EditProductForm() {
+export  default function EditProductForm() {
   const { openModal } = useModal();
   const navigate = useNavigate();
   const location = useLocation();

@@ -13,20 +13,21 @@ orderRouter.post("/", OrderController.create);
 orderRouter.put(
   "/:id_order/status",
   authenticate,
-  authorization,
+  authorization("admin"),
   OrderController.updateStatus
 );
 orderRouter.put(
   "/:id_order",
   authenticate,
-  authorization,
+  authorization("admin"),
   OrderController.update
 );
 orderRouter.delete(
   "/:id_order",
   authenticate,
-  authorization,
+  authorization("admin"),
   OrderController.delete
 );
-orderRouter.post("/orders/:id/approve", OrderController.approveOrder);
-orderRouter.post("/orders/:id/reject", OrderController.rejectOrder);
+orderRouter.patch("/:id/accept", authenticate, authorization("admin"), OrderController.approveOrder);
+orderRouter.patch("/:id/reject", authenticate, authorization("admin"), OrderController.rejectOrder);
+orderRouter.patch("/:orderId/refund",  authenticate, authorization("admin"),OrderController.refund);

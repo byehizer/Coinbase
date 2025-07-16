@@ -1,6 +1,17 @@
+import { DeliveryService } from "../services/delivery.service.js";
 import { OrderService } from "../services/order.service.js";
 import { PaymentService } from "../services/payment.service.js";
-import { sendManualPaymentInstructions } from "../utils/email.utils.js";
+import {
+  sendManualPaymentInstructions,
+  sendRejectionEmail,
+} from "../utils/email.utils.js";
+import dotenv from "dotenv";
+import Stripe from "stripe";
+import { ProductService } from "../services/product.service.js";
+
+dotenv.config();
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export class OrderController {
   static async getAll(req, res) {
@@ -24,13 +35,10 @@ export class OrderController {
         return res.status(400).json({ error: "Order is not in pending state" });
       }
 
-      
       await OrderService.updateStatus(order.id, "cancelled");
 
+      await PaymentService.update(Number(order.id), { status: "rejected" });
 
-      await PaymentService.update(order.id, { status: "rejected" });
-
-     
       await sendRejectionEmail({
         id: order.id,
         client_email: order.client_email,
@@ -65,6 +73,10 @@ export class OrderController {
         status: order.status,
         paymentMethod: order.payment?.method || null,
         trackingStatus: order.delivery?.status || null,
+        address: order.delivery?.address || "",
+        city: order.delivery?.city || "",
+        country: order.delivery?.country || "",
+        receipt: order.payment?.receipt || null,
         products,
       };
 
@@ -158,34 +170,43 @@ export class OrderController {
     try {
       const id_order = Number(req.params.id_order);
       const {
-        client_name,
-        client_email,
-        total,
-        status,
-        id_payment,
-        id_delivery,
-        payment_method,
+        clientName,
+        clientEmail,
+        status, // ✅ nuevo campo
+        trackingStatus,
+        deliveryAddress,
+        deliveryCity,
+        deliveryCountry,
       } = req.body;
 
+      // Buscar orden existente
+      const order = await OrderService.getById(id_order);
+      if (!order) return res.status(404).json({ error: "Order not found" });
+
+      // Actualizar orden
       const updatedOrder = await OrderService.update(id_order, {
-        client_name,
-        client_email,
-        total,
-        status,
-        id_payment,
-        id_delivery,
+        client_name: clientName,
+        client_email: clientEmail,
+        status: status || order.status, // si no viene, se mantiene el actual
       });
 
-      if (id_payment && payment_method) {
-        await PaymentService.update(id_payment, { method: payment_method });
+      // Actualizar delivery (si existe)
+      if (order.id_delivery) {
+        await DeliveryService.update(order.id_delivery, {
+          address: deliveryAddress,
+          city: deliveryCity,
+          country: deliveryCountry,
+          status: trackingStatus || order.delivery?.status,
+        });
       }
 
-      res.json({
-        message: "Order updated successfully",
-        order: updatedOrder,
-      });
+      // Obtener orden actualizada con delivery y payment incluidos
+      const fullOrder = await OrderService.getById(id_order);
+
+      return res.json(fullOrder);
     } catch (error) {
-      res.status(500).json({
+      console.error(error);
+      return res.status(500).json({
         error: "Error updating order",
         details: error.message,
       });
@@ -194,12 +215,46 @@ export class OrderController {
 
   static async delete(req, res) {
     try {
-      const result = await OrderService.delete(Number(req.params.id_order));
-      res.json({ message: "Order deleted successfully", order: result });
+      const id_order = Number(req.params.id_order);
+      const deleted = await OrderService.deleteCascade(id_order);
+
+      res.json({
+        message: "Order deleted successfully",
+        order: deleted,
+      });
     } catch (error) {
-      res
-        .status(500)
-        .json({ error: "Error deleting order", details: error.message });
+      console.error(error);
+      res.status(500).json({
+        error: "Error deleting order",
+        details: error.message,
+      });
+    }
+  }
+
+  static async refund(req, res) {
+    const { orderId } = req.params;
+
+    try {
+      const order = await OrderService.getById(Number(orderId));
+      if (!order || !order.payment || !order.payment.chargeId) {
+        return res
+          .status(404)
+          .json({ error: "No se encontró el pago válido para reembolso" });
+      }
+
+      if (order.payment.status === "refunded") {
+        return res.status(400).json({ error: "La orden ya fue reembolsada" });
+      }
+
+      // Crear el reembolso (webhook hará el resto)
+      const refund = await stripe.refunds.create({
+        charge: order.payment.chargeId,
+      });
+
+      return res.status(200).json({ message: "Reembolso iniciado", refund });
+    } catch (err) {
+      console.error("❌ Error al iniciar reembolso:", err.message);
+      return res.status(500).json({ error: "Error al procesar el reembolso" });
     }
   }
 }

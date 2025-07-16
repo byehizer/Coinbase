@@ -1,154 +1,319 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useModal } from "../../../../context/ModalContext";
+import { useGuardToken } from "../../../../utils/guard";
 
-export function EditOrderForm() {
-    const navigate = useNavigate();
-    const location = useLocation();
-    const order = location.state?.product || {};
+export default function EditOrderForm() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const token = localStorage.getItem("token");
+  const guard = useGuardToken();
+  const { openModal } = useModal();
 
-    const [orderData, setOrderData] = useState({
-        client_name: "",
-        client_email: "",
-        order_date: "",
-        total: "",
-        status: "pending",
-        payment_method: "",
-        id_payment: "",
-    });
+  const [order, setOrder] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        if (order) {
-            setOrderData({
-                client_name: order.client_name || "",
-                client_email: order.client_email || "",
-                order_date: order.order_date || "",
-                total: order.total || "",
-                status: order.status || "pending",
-                payment_method: order.payment?.method || "",
-                id_payment: order.payment?.id || "",
-            });
-        }
-    }, [order]);
+  /* ─── Obtener orden completa desde DB ─── */
+  useEffect(() => {
+    if (guard()) return;
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setOrderData(prev => ({ ...prev, [name]: value }));
+    const id = location.state?.order?.id;
+    console.log(location.state?.order);
+    if (!id) {
+      toast.error("Order not found");
+      navigate("/admin/orders");
+      return;
+    }
+
+    (async () => {
+      try {
+        const res = await fetch(`http://localhost:5000/api/orders/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.status === 401) return guard();
+        const d = await res.json();
+
+        // Flatten delivery y tracking
+        setOrder({
+          ...d,
+          address: d.address || "",
+          city: d.city || "",
+          country: d.country || "",
+          trackingStatus: d.trackingStatus || "",
+          receipt: d.receipt || null,
+        });
+      } catch {
+        toast.error("Error loading order");
+        navigate("/admin/orders");
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  if (guard() || loading || !order) return null;
+
+  /* ─── Helpers ─── */
+  const setField = (field, value) =>
+    setOrder((prev) => ({ ...prev, [field]: value }));
+
+  /* ─── PUT /orders/:id_order ─── */
+  const updateOrder = async () => {
+    if (guard()) return;   
+    const body = {
+      clientName: order.clientName,
+      clientEmail: order.clientEmail,
+      status: order.status, // ← OrderStatus
+      trackingStatus: order.trackingStatus,
+      deliveryAddress: order.address,
+      deliveryCity: order.city,
+      deliveryCountry: order.country,
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    try {
+      const res = await fetch(`http://localhost:5000/api/orders/${order.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      });
+      if (res.status === 401) return guard();
+      if (!res.ok) throw new Error(await res.text());
 
-        try {
-            const res = await fetch(`http://localhost:5000/api/orders/${order.id}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(orderData),
-            });
+      const u = await res.json();
+      setOrder({
+        ...u,
+        address: u.address || "",
+        city: u.city || "",
+        country: u.country || "",
+        trackingStatus: u.trackingStatus || "",
+        receipt: u.receipt || null,
+      });
+      toast.success("Order updated");
+      setTimeout(() => {
+      navigate("/admin/orders");
+    }, 1500);
+    } catch {
+      toast.error("Update failed");
+      
+    }
+  };
 
-            if (!res.ok) throw new Error("Failed to update");
+  /* ─── PATCH accept / reject / refund (sin cambios) ─── */
+  const patchAction = async (action) => {
+    if (guard()) return;   
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/orders/${order.id}/${action}`,
+        { method: "PATCH", headers: { Authorization: `Bearer ${token}` } }
+      );
+      console.log(res);
+      if (res.status === 401) return guard();
+      if (!res.ok) throw new Error(await res.text());
+      const u = await res.json();
+      setOrder({
+        ...u,
+        address: u.address || "",
+        city: u.city || "",
+        country: u.country || "",
+        trackingStatus: u.trackingStatus || "",
+        receipt: u.receipt || null,
+      });
+      toast.success(`Order ${action}ed`);
+      setTimeout(() => {
+      navigate("/admin/orders");
+    }, 1500);
+    } catch {
+      toast.error(`Error trying to ${action} order`);
+    }
+  };
 
-            toast.success("Order updated successfully!");
-            navigate("/admin/orders");
-        } catch (err) {
-            console.error(err);
-            toast.error("Error updating order.");
-        }
-    };
+  const confirmAndAct = async (action, title, text) => {
+    if (guard()) return;   
+    const confirmed = await openModal({ title, text });
+    if (!confirmed) return;
 
-    return (
-        <div className="flex justify-center items-center min-h-screen bg-gray-100">
-            <div className="w-full max-w-2xl bg-white p-8 shadow-md rounded-md">
-                <h2 className="text-2xl font-bold mb-6 text-center">Edit Order</h2>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium">Client Name</label>
-                        <input
-                            type="text"
-                            name="client_name"
-                            value={orderData.client_name}
-                            onChange={handleChange}
-                            className="w-full border p-2 rounded"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium">Client Email</label>
-                        <input
-                            type="email"
-                            name="client_email"
-                            value={orderData.client_email}
-                            onChange={handleChange}
-                            className="w-full border p-2 rounded"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium">Order Date</label>
-                        <input
-                            type="date"
-                            name="order_date"
-                            value={orderData.order_date}
-                            onChange={handleChange}
-                            className="w-full border p-2 rounded"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium">Total</label>
-                        <input
-                            type="number"
-                            name="total"
-                            value={orderData.total}
-                            onChange={handleChange}
-                            className="w-full border p-2 rounded"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium">Status</label>
-                        <select
-                            name="status"
-                            value={orderData.status}
-                            onChange={handleChange}
-                            className="w-full border p-2 rounded"
-                        >
-                            <option value="pending">Pending</option>
-                            <option value="paid">Paid</option>
-                            <option value="shipped">Shipped</option>
-                            <option value="delivered">Delivered</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium">Payment Method</label>
-                        <select
-                            name="payment_method"
-                            value={orderData.payment_method}
-                            onChange={handleChange}
-                            className="w-full border p-2 rounded"
-                            required
-                        >
-                            <option value="">Select a method</option>
-                            <option value="PayPal">PayPal</option>
-                            <option value="Venmo">Venmo</option>
-                            <option value="Zelle">Zelle</option>
-                            <option value="Credit_Card">Credit Card</option>
-                            <option value="Debit_Card">Debit Card</option>
-                            <option value="Apple_Pay">Apple Pay</option>
-                            <option value="Google_Pay">Google Pay</option>
-                            <option value="Cripto">Crypto</option>
-                        </select>
-                    </div>
+    if (action === "delete") {
+      try {
+        const res = await fetch(
+          `http://localhost:5000/api/orders/${order.id}`,
+          {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        if (res.status === 401) return guard();
+        if (!res.ok) throw new Error(await res.text());
+        toast.success("Order deleted");
+        setTimeout(() => {
+      navigate("/admin/orders");
+    }, 1500);
+      } catch {
+        toast.error("Error deleting order");
+      }
+    } else {
+      patchAction(action);
+    }
+  };
 
+  /* ─── lógica de botones ─── */
+  const isVenmoZelle = ["venmo", "zelle"].includes(
+    order.paymentMethod?.toLowerCase()
+  );
+  const showAcceptReject = order.status === "pending" && isVenmoZelle;
+  const showRefund = order.status === "paid" && !isVenmoZelle;
 
-                    <div className="flex justify-between mt-6">
-                        <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded">
-                            Save Changes
-                        </button>
-                        <button type="button" onClick={() => navigate("/admin/orders")} className="bg-gray-500 text-white px-6 py-2 rounded">
-                            Cancel
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    );
+  /* ─── UI ─── */
+  return (
+    <div className="p-6 max-w-3xl mx-auto bg-white rounded shadow">
+      <h2 className="text-2xl font-bold mb-6">Edit Order #{order.id}</h2>
+
+      <div className="grid gap-4">
+        {/* Cliente */}
+        <label>
+          Client Name:
+          <input
+            className="w-full border p-2 rounded"
+            value={order.clientName}
+            onChange={(e) => setField("clientName", e.target.value)}
+          />
+        </label>
+        <label>
+          Client Email:
+          <input
+            className="w-full border p-2 rounded"
+            value={order.clientEmail}
+            onChange={(e) => setField("clientEmail", e.target.value)}
+          />
+        </label>
+
+        {/* Dirección */}
+        <label>
+          Address:
+          <input
+            className="w-full border p-2 rounded"
+            value={order.address}
+            onChange={(e) => setField("address", e.target.value)}
+          />
+        </label>
+        <label>
+          City:
+          <input
+            className="w-full border p-2 rounded"
+            value={order.city}
+            onChange={(e) => setField("city", e.target.value)}
+          />
+        </label>
+        <label>
+          Country:
+          <input
+            className="w-full border p-2 rounded"
+            value={order.country}
+            onChange={(e) => setField("country", e.target.value)}
+          />
+        </label>
+
+        {/* Estados */}
+        <label>
+          Order Status:
+          <select
+            className="w-full border p-2 rounded"
+            value={order.status}
+            onChange={(e) => setField("status", e.target.value)}
+          >
+            <option value="pending">Pending</option>
+            <option value="paid">Paid</option>
+            <option value="shipped">Shipped</option>
+            <option value="delivered">Delivered</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </label>
+
+        <label>
+          Tracking Status:
+          <select
+            className="w-full border p-2 rounded"
+            value={order.trackingStatus}
+            onChange={(e) => setField("trackingStatus", e.target.value)}
+          >
+            <option value="">--</option>
+            <option value="pending">Pending</option>
+            <option value="in_transit">In Transit</option>
+            <option value="delivered">Delivered</option>
+          </select>
+        </label>
+
+        {/* Comprobante de pago */}
+        {order.receipt && isVenmoZelle && (
+          <div>
+            <h3 className="font-semibold mb-2">Payment Receipt:</h3>
+            <a href={order.receipt} target="_blank" rel="noopener noreferrer">
+              <img
+                src={order.receipt}
+                alt="receipt"
+                className="max-w-xs border rounded"
+              />
+            </a>
+          </div>
+        )}
+      </div>
+
+      {/* Botones */}
+      <div className="flex flex-wrap gap-4 mt-6">
+        <button
+          className="bg-blue-600 text-white px-4 py-2 rounded"
+          onClick={updateOrder}
+        >
+          Save Changes
+        </button>
+
+        {showAcceptReject && (
+          <>
+            <button
+              className="bg-green-600 text-white px-4 py-2 rounded"
+              onClick={() => patchAction("accept")}
+            >
+              Accept
+            </button>
+            <button
+              className="bg-red-600 text-white px-4 py-2 rounded"
+              onClick={() =>
+                confirmAndAct("reject", "Reject Order", "Are you sure?")
+              }
+            >
+              Reject
+            </button>
+          </>
+        )}
+
+        {showRefund && (
+          <button
+            className="bg-yellow-600 text-white px-4 py-2 rounded"
+            onClick={() =>
+              confirmAndAct("refund", "Refund Order", "Initiate refund?")
+            }
+          >
+            Refund
+          </button>
+        )}
+        {order.status === "cancelled" && (
+          <button
+            className="bg-red-800 text-white px-4 py-2 rounded"
+            onClick={() =>
+              confirmAndAct(
+                "delete",
+                "Delete Order",
+                "Are you sure you want to permanently delete this order?"
+              )
+            }
+          >
+            Delete
+          </button>
+        )}
+      </div>
+    </div>
+  );
 }

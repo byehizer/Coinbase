@@ -13,10 +13,20 @@ export class PaymentService {
     });
   }
 
-  static async findByIntentId(paymentIntentId){
-    return prisma.paymentIntentId.findUnique({
+  static async findByIntentId(paymentIntentId) {
+    return prisma.payment.findFirst({
       where: {
-        paymentIntentId,
+        paymentIntentId
+      },
+    });
+  }
+  static async findByOrderId(orderId) {
+    return prisma.payment.findFirst({
+      where: {
+        Order: {
+          // nombre del relation‑field en tu schema
+          some: { id: orderId },
+        },
       },
     });
   }
@@ -26,14 +36,17 @@ export class PaymentService {
       data: {
         method,
         status,
-        receipt, 
+        receipt,
         paymentIntentId,
         chargeId,
       },
     });
   }
 
-  static async createTx(tx, { method, status, receipt, paymentIntentId, chargeId }) {
+  static async createTx(
+    tx,
+    { method, status, receipt, paymentIntentId, chargeId }
+  ) {
     return tx.payment.create({
       data: {
         method,
@@ -51,16 +64,21 @@ export class PaymentService {
     });
   }
   static async updateMethod(id, method) {
-  return prisma.payment.update({
-    where: { id },
-    data: { method },
-  });
-}
-
-  static async update(id, { method, status, receipt, paymentIntentId, chargeId }) {
     return prisma.payment.update({
       where: { id },
-      data: { method, status, receipt, paymentIntentId, chargeId },
+      data: { method },
+    });
+  }
+
+  static async update(id, data) {
+    // Elimina keys cuyo valor sea undefined
+    const cleanData = Object.fromEntries(
+      Object.entries(data).filter(([_, v]) => v !== undefined)
+    );
+
+    return prisma.payment.update({
+      where: { id: Number(id) },
+      data: cleanData,
     });
   }
 

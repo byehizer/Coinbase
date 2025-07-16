@@ -109,32 +109,34 @@ export class WebhookService {
     return "Zelle"; // fallback final solo si no reconocimos nada
   }
 
-  static async handleChargeRefunded(event) {
-    const charge = event.data.object;
-    const paymentIntentId = charge.payment_intent;
+ static async handleChargeRefunded(event) {
+  const charge = event.data.object;
+  const paymentIntentId = charge.payment_intent;
 
-    const payment = await PaymentService.findByIntentId(paymentIntentId);
-    if (!payment) {
-      console.warn(
-        "⚠️ No se encontró el pago con paymentIntent:",
-        paymentIntentId
-      );
-      return;
-    }
-
-    const orderId = payment.orderId;
-
-    await PaymentService.update(orderId, { status: "refunded" });
-    await OrderService.updateStatus(orderId, "cancelled");
-
-    const order = await OrderService.getById(orderId);
-
-    if (order) {
-      for (const item of order.products) {
-        await ProductService.increaseStock(item.id_product, item.quantity);
-      }
-    }
-
-    console.log(`🔁 Orden ${orderId} reembolsada vía webhook.`);
+  // 1. Traer el pago por intentID
+  const payment = await PaymentService.findByIntentId(paymentIntentId);
+  if (!payment) {
+    console.warn("⚠️ No se encontró el pago con paymentIntentId:", paymentIntentId);
+    return;
   }
+
+  // 2. Traer la orden relacionada
+  const order = await OrderService.findByPaymentId(payment.id);
+  if (!order) {
+    console.warn("⚠️ No se encontró la orden relacionada al payment:", payment.id);
+    return;
+  }
+
+  // 3. Actualizar estados
+  await PaymentService.updateStatus(payment.id, "refunded");
+  await OrderService.updateStatus(order.id, "cancelled");
+
+  // 4. Devolver stock
+  for (const item of order.OrderDetail) {
+    await ProductService.increaseStock(item.id_product, item.quantity);
+  }
+
+  console.log(`🔁 Orden ${order.id} reembolsada vía webhook.`);
+}
+
 }
