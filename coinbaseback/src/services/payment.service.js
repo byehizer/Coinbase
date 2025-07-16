@@ -16,10 +16,30 @@ export class PaymentService {
   static async findByIntentId(paymentIntentId) {
     return prisma.payment.findFirst({
       where: {
-        paymentIntentId
+        paymentIntentId,
       },
     });
   }
+
+ static async updateReceipt(orderId, fileUrl) {
+    
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: { payment: true },
+    });
+
+    if (!order || !order.payment) {
+      throw new Error("Order or associated payment not found");
+    }
+
+    const updatedPayment = await prisma.payment.update({
+      where: { id: order.payment.id },
+      data: { receipt: fileUrl },
+    });
+
+    return updatedPayment;
+  }
+
   static async findByOrderId(orderId) {
     return prisma.payment.findFirst({
       where: {

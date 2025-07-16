@@ -2,6 +2,7 @@ import { Router } from "express";
 import { OrderController } from "../controllers/order.controller.js";
 import { authenticate } from "../middlewares/authenticate.js";
 import { authorization } from "../middlewares/authorization.js";
+import upload from "../middlewares/upload.js";
 
 export const orderRouter = Router();
 
@@ -31,3 +32,4 @@ orderRouter.delete(
 orderRouter.patch("/:id/accept", authenticate, authorization("admin"), OrderController.approveOrder);
 orderRouter.patch("/:id/reject", authenticate, authorization("admin"), OrderController.rejectOrder);
 orderRouter.patch("/:orderId/refund",  authenticate, authorization("admin"),OrderController.refund);
+orderRouter.post("/:id/upload-receipt", upload.single("image"), OrderController.uploadReceipt);

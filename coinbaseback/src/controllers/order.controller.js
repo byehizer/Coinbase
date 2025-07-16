@@ -4,6 +4,7 @@ import { PaymentService } from "../services/payment.service.js";
 import {
   sendManualPaymentInstructions,
   sendRejectionEmail,
+  sendStripeConfirmationEmail
 } from "../utils/email.utils.js";
 import dotenv from "dotenv";
 import Stripe from "stripe";
@@ -23,6 +24,28 @@ export class OrderController {
         .status(500)
         .json({ error: "Error fetching orders", details: error.message });
     }
+  }
+  static async uploadReceipt(req, res){
+    try {
+    const orderId = Number(req.params.id);
+    const file = req.file;
+
+    if (!file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    const fileUrl = `/uploads/${file.filename}`;
+    const updatedPayment = await PaymentService.updateReceipt(Number(orderId), fileUrl);
+
+    res.json({
+      receipt: fileUrl,
+      message: "Receipt uploaded successfully",
+      payment: updatedPayment,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to upload receipt", details: error.message });
+  }
   }
   static async rejectOrder(req, res) {
     const { id } = req.params;

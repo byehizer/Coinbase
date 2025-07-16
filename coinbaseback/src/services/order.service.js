@@ -12,6 +12,7 @@ export class OrderService {
     });
   }
 
+  
   static async getById(id) {
     return prisma.order.findUnique({
       where: { id },
