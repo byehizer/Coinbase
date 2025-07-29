@@ -1,6 +1,5 @@
 import { CardProduct } from "../components/cardproduct";
 import { useLocation } from "react-router-dom";
-import dataProducts from "../data.json";
 import { useState, useEffect } from "react";
 
 export function Home() {
@@ -20,10 +19,7 @@ export function Home() {
           year: Number(product.year),
           stock: Number(product.stock),
         }));
-
         const mergedMap = new Map();
-
-        dataProducts.forEach((p) => mergedMap.set(p.id, p));
         backendProducts.forEach((p) => mergedMap.set(p.id, p));
 
         setProducts(Array.from(mergedMap.values()));
