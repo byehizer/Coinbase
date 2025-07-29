@@ -25,3 +25,5 @@ dist-ssr
 
 # vite cache
 .vite
+
+.env
