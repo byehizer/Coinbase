@@ -134,28 +134,23 @@ export class ProductController {
     const { id_product } = req.params;
 
     try {
-      // 1. Obtener el producto antes de eliminarlo
       const product = await ProductService.getById(Number(id_product));
       if (!product) {
         return res.status(404).json({ message: "Product not found" });
       }
 
-      // 2. Eliminar la imagen si existe
-      if (product.image_url) {
-        const imagePath = path.join(
-          "uploads",
-          path.basename(product.image_url)
-        );
-        try {
-          await fs.unlink(imagePath);
-          console.log("Imagen eliminada:", imagePath);
-        } catch (err) {
-          console.error("No se pudo eliminar la imagen:", err.message);
-          // Opcional: seguir aunque no se pueda borrar la imagen
-        }
-      }
+      const relatedOrder= await ProductService.relatedOrderDetailsCount(Number(id_product));
 
-      // 3. Eliminar el producto
+   if (relatedOrder === 0 && product.image_url) {
+      const imagePath = path.join("uploads", path.basename(product.image_url));
+      try {
+        await fs.unlink(imagePath);
+        console.log("Imagen eliminada:", imagePath);
+      } catch (err) {
+        console.error("No se pudo eliminar la imagen:", err.message);
+      }
+    }
+
       await ProductService.delete(Number(id_product));
 
       res.json({ message: "Product deleted successfully" });

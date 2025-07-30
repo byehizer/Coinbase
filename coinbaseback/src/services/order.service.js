@@ -121,6 +121,9 @@ export class OrderService {
           id_product: item.id,
           quantity: item.quantity,
           price_unit: item.price,
+          product_name: item.name,
+          product_image_url:item.image_url,
+
         });
       }
 

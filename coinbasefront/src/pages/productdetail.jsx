@@ -12,32 +12,44 @@ export function ProductDetail() {
   const { products, addProduct, updateProductQuantity, removeProduct } =
     useShoppingCart();
 
+  const existingProduct = products.find((p) => p.id === product.id);
+  const quantityInCart = existingProduct ? existingProduct.quantity : 0;
+  const stockLeft =
+    product.stock !== undefined ? product.stock - quantityInCart : 0;
+
+  // Función para aumentar la cantidad sin pasarse del stock disponible restante
   const increaseQuantity = () => {
-    if (product.stock !== undefined && quantity < product.stock) {
+    if (quantity < stockLeft) {
       setQuantity((prev) => prev + 1);
     }
   };
 
+  // Función para disminuir la cantidad, mínimo 1
   const decreaseQuantity = () => {
     setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
   };
 
+  // Si el stock restante es 0 o menor, deshabilitar botón y cantidad a 0
+  const isOutOfStock = stockLeft <= 0;
+
+  // Handler para agregar al carrito, actualizando la cantidad correctamente
+const handleAddToCart = () => {
+  if (isOutOfStock || quantity <= 0) return;
+
+  if (existingProduct) {
+    // Sumar al total actual
+    updateProductQuantity(product.id, quantityInCart + quantity);
+  } else {
+    // Agregar el producto desde cero, con cantidad incluida
+    addProduct({ ...product});
+    updateProductQuantity(product.id, quantity);
+  }
+
+  setQuantity(1);
+};
+
   const toggleModal = () => {
     setModal((prev) => !prev);
-  };
-
-  const handleAddToCart = () => {
-    const existingProduct = products.find((p) => p.id === product.id);
-
-    if (existingProduct) {
-      updateProductQuantity(product.id, existingProduct.quantity + quantity);
-      product.stock = product.stock - quantity;
-    } else {
-      addProduct({ ...product });
-      updateProductQuantity(product.id, quantity);
-      product.stock = product.stock - quantity;
-    }
-    setQuantity(1);
   };
 
   if (!product) {
@@ -114,42 +126,39 @@ export function ProductDetail() {
           </div>
 
           {/* Control de cantidad y botón */}
-          {product.stock === 0 ? (
+          {isOutOfStock ? (
             <>
               <p className="flex justify-center items-center w-full h-[180px] bg-red-100 text-red-700 text-2xl md:text-3xl font-bold rounded-lg mt-8">
                 Producto agotado
               </p>
               <div className="hidden md:block h-[70px]" />
-              {/* simula espacio del botón */}
             </>
           ) : (
-            <>
-              {/* Control de cantidad y botón */}
-              <div className="buttons-container flex flex-col md:flex-row xl:mt-40 lg:mt-14">
-                <div className="state w-[100%] flex justify-around md:justify-center items-center space-x-10 bg-lightGrayishBlue rounded-lg p-3 md:p-2 md:mr-4 md:w-[150px]">
-                  <button
-                    onClick={decreaseQuantity}
-                    className="minus text-[24px] md:text-[2rem] font-[700] text-orange transition-all hover:opacity-50"
-                  >
-                    -
-                  </button>
-                  <p className="md:text-[1.5rem] font-bold">{quantity}</p>
-                  <button
-                    className="plus text-[24px] md:text-[2rem] font-[700] text-orange transition-all hover:opacity-50"
-                    onClick={increaseQuantity}
-                  >
-                    +
-                  </button>
-                </div>
+            <div className="buttons-container flex flex-col md:flex-row xl:mt-40 lg:mt-14">
+              <div className="state w-[100%] flex justify-around md:justify-center items-center space-x-10 bg-lightGrayishBlue rounded-lg p-3 md:p-2 md:mr-4 md:w-[150px]">
                 <button
-                  onClick={handleAddToCart}
-                  className="add-btn border-none bg-orange rounded-lg text-white font-[700] px-[70px] py-[18px] md:text-[14px] transition-all btn-shadow hover:opacity-50"
+                  onClick={decreaseQuantity}
+                  className="minus text-[24px] md:text-[2rem] font-[700] text-orange transition-all hover:opacity-50"
                 >
-                  Añadir {quantity} {quantity > 1 ? "productos" : "producto"} al
-                  carrito
+                  -
+                </button>
+                <p className="md:text-[1.5rem] font-bold">{quantity}</p>
+                <button
+                  disabled={quantity - stockLeft === 0}
+                  className="plus text-[24px] md:text-[2rem] font-[700] text-orange transition-all hover:opacity-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={increaseQuantity}
+                >
+                  +
                 </button>
               </div>
-            </>
+              <button
+                onClick={handleAddToCart}
+                disabled={quantity > stockLeft || quantity <= 0}
+                className={`add-btn border-none bg-orange rounded-lg text-white font-[700] px-[70px] py-[18px] md:text-[14px] transition-all btn-shadow hover:opacity-50 disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                Añadir {quantity} {quantity > 1 ? "productos" : "producto"} al carrito
+              </button>
+            </div>
           )}
         </div>
       </div>

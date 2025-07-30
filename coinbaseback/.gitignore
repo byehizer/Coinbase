@@ -23,7 +23,7 @@ pgadmin_data/
 postgres_data/
 
 # Uploads locales
-uploads/
+uploads/*
 
 # Others
 .DS_Store

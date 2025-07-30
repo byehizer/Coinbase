@@ -2,7 +2,7 @@ import { prisma } from "../providers/prisma.provider.js";
 
 export class ProductService {
   static async getAll() {
-    return prisma.product.findMany();
+    return prisma.product.findMany( {where: { deleted: false }} );
   }
 
   static async getById(id) {
@@ -77,10 +77,14 @@ export class ProductService {
   }
 
   static async delete(id) {
-    return prisma.product.delete({
+    return prisma.product.update({
       where: {
         id,
       },
+      data: {deleted : true},
     });
+  }
+  static async relatedOrderDetailsCount(id_product){
+    return prisma.orderDetail.count({id_product:Number(id_product)})
   }
 }

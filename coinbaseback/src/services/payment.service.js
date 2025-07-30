@@ -44,7 +44,6 @@ export class PaymentService {
     return prisma.payment.findFirst({
       where: {
         Order: {
-          // nombre del relation‑field en tu schema
           some: { id: orderId },
         },
       },

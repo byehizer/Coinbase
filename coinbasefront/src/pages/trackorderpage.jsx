@@ -8,27 +8,42 @@ export default function TrackOrderPage() {
   const [error, setError] = useState("");
   const [orderIdInput, setOrderIdInput] = useState("");
 
+  const isValidEmail = (email) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
+    if (!isValidEmail(email)) {
+      setError("Por favor, ingresa un correo válido.");
+      return;
+    }
+
     try {
       const response = await fetch(
-        `http://localhost:5000/api/orders/${orderIdInput.trim()}`
+        `http://localhost:5000/api/orders/public/${orderIdInput.trim()}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email: email.trim() }),
+        }
       );
 
       if (!response.ok) {
-        setError("Pedido no encontrado.");
+        if (response.status === 403) {
+          setError("El correo no coincide con el ID del pedido.");
+        } else {
+          setError("Pedido no encontrado.");
+        }
         return;
       }
 
       const found = await response.json();
 
-      if (found.clientEmail.toLowerCase() === email.toLowerCase().trim()) {
-        navigate(`/order-detail?id=${found.id}`, { state: { order: found } });
-      } else {
-        setError("El correo no coincide con el ID del pedido.");
-      }
+      navigate(`/order-detail?id=${found.id}`, { state: { order: found } });
     } catch (error) {
       console.error("Error buscando el pedido:", error);
       setError("Ocurrió un error al buscar el pedido.");

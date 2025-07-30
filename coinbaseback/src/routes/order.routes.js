@@ -9,7 +9,7 @@ export const orderRouter = Router();
 //Vamos a tener que agregarle los middlewares cuando el token al iniciar sesion funcione en el frontend, porque en el backend ya esta creado
 
 orderRouter.get("/", authenticate, authorization("admin"), OrderController.getAll);
-orderRouter.get("/:id_order", OrderController.getById);
+orderRouter.get("/:id_order",authenticate,authorization("admin"),OrderController.getById);
 orderRouter.post("/", OrderController.create);
 orderRouter.put(
   "/:id_order/status",
@@ -33,3 +33,4 @@ orderRouter.patch("/:id/accept", authenticate, authorization("admin"), OrderCont
 orderRouter.patch("/:id/reject", authenticate, authorization("admin"), OrderController.rejectOrder);
 orderRouter.patch("/:orderId/refund",  authenticate, authorization("admin"),OrderController.refund);
 orderRouter.post("/:id/upload-receipt", upload.single("image"), OrderController.uploadReceipt);
+orderRouter.post("/public/:id", OrderController.publicgetbyid);

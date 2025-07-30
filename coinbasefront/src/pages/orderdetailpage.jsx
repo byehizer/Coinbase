@@ -43,6 +43,7 @@ export default function OrderDetailPage() {
       setUploading(true);
 
       const formData = new FormData();
+      formData.append("email", order.clientEmail);
       formData.append("image", file); // <-- debe coincidir con backend
 
       const res = await fetch(

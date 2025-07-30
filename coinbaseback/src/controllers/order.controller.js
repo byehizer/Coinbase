@@ -4,7 +4,7 @@ import { PaymentService } from "../services/payment.service.js";
 import {
   sendManualPaymentInstructions,
   sendRejectionEmail,
-  sendStripeConfirmationEmail
+  sendStripeConfirmationEmail,
 } from "../utils/email.utils.js";
 import dotenv from "dotenv";
 import Stripe from "stripe";
@@ -25,28 +25,79 @@ export class OrderController {
         .json({ error: "Error fetching orders", details: error.message });
     }
   }
-  static async uploadReceipt(req, res){
+  static async uploadReceipt(req, res) {
     try {
-    const orderId = Number(req.params.id);
-    const file = req.file;
+      const orderId = Number(req.params.id);
+      const file = req.file;
+      const { email } = req.body;
 
-    if (!file) {
-      return res.status(400).json({ error: "No file uploaded" });
+      if (!email) {
+        return res.status(400).json({ error: "Email is required" });
+      }
+
+      if (!file) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
+
+      // Obtener orden y verificar existencia
+      const order = await OrderService.getById(orderId);
+      if (!order) {
+        return res.status(404).json({ error: "Order not found" });
+      }
+
+      // Verificar que el email coincida
+      if (order.email !== email) {
+        return res
+          .status(403)
+          .json({ error: "Unauthorized: Email does not match order" });
+      }
+
+      // Verificar estado del pago
+      const payment = await PaymentService.getByOrderId(orderId);
+      if (!payment) {
+        return res.status(404).json({ error: "Payment not found" });
+      }
+
+      if (["paid", "cancel"].includes(payment.status)) {
+        return res
+          .status(400)
+          .json({
+            error: `Cannot upload receipt. Current payment status: ${payment.status}`,
+          });
+      }
+
+      if (order.payment?.receipt) {
+        const oldPath = path.join(
+          __dirname,
+          "..",
+          "uploads",
+          path.basename(order.payment.receipt)
+        );
+        if (fs.existsSync(oldPath)) {
+          fs.unlinkSync(oldPath);
+        }
+      }
+
+      // Subir comprobante
+      const fileUrl = `/uploads/${file.filename}`;
+      const updatedPayment = await PaymentService.updateReceipt(
+        orderId,
+        fileUrl
+      );
+
+      res.json({
+        receipt: fileUrl,
+        message: "Receipt uploaded successfully",
+        payment: updatedPayment,
+      });
+    } catch (error) {
+      console.error(error);
+      res
+        .status(500)
+        .json({ error: "Failed to upload receipt", details: error.message });
     }
-
-    const fileUrl = `/uploads/${file.filename}`;
-    const updatedPayment = await PaymentService.updateReceipt(Number(orderId), fileUrl);
-
-    res.json({
-      receipt: fileUrl,
-      message: "Receipt uploaded successfully",
-      payment: updatedPayment,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Failed to upload receipt", details: error.message });
   }
-  }
+
   static async rejectOrder(req, res) {
     const { id } = req.params;
 
@@ -75,14 +126,50 @@ export class OrderController {
     }
   }
 
+  static async publicgetbyid(req, res) {
+    const id = req.params.id;
+    const { email } = req.body;
+
+    const order = await OrderService.getById(Number(id));
+    console.log(order);
+    console.log(email);
+    if (!order || order.client_email !== email) {
+      return res.status(403).json({ message: "No autorizado" });
+    }
+
+    const products = order.OrderDetail.map((item) => ({
+      name: item.product_name,
+      image: item.product_image_url,
+      quantity: item.quantity,
+      unitPrice: item.price_unit,
+    }));
+
+    const response = {
+      id: order.id,
+      clientName: order.client_name,
+      clientEmail: order.client_email,
+      orderDate: order.order_date,
+      total: order.total,
+      status: order.status,
+      paymentMethod: order.payment?.method || null,
+      trackingStatus: order.delivery?.status || null,
+      address: order.delivery?.address || "",
+      city: order.delivery?.city || "",
+      country: order.delivery?.country || "",
+      receipt: order.payment?.receipt || null,
+      products,
+    };
+
+    res.json(response);
+  }
   static async getById(req, res) {
     try {
       const order = await OrderService.getById(Number(req.params.id_order));
       if (!order) return res.status(404).json({ error: "Order not found" });
 
       const products = order.OrderDetail.map((item) => ({
-        name: item.product.name,
-        image: item.product.image_url,
+        name: item.product_name,
+        image: item.product_image_url,
         quantity: item.quantity,
         unitPrice: item.price_unit,
       }));

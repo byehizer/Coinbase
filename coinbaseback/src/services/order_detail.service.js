@@ -33,13 +33,15 @@ export class OrderDetailService {
     });
   }
 
-  static async createTx(tx, { id_order, id_product, quantity, price_unit }) {
+  static async createTx(tx, { id_order, id_product, quantity, price_unit, product_name, product_image_url}) {
     return tx.orderDetail.create({
       data: {
         id_order,
         id_product,
         quantity,
         price_unit,
+        product_name,
+        product_image_url
       },
     });
   }

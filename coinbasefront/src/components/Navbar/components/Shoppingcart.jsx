@@ -41,7 +41,8 @@ export function ShoppingCart() {
 
                             {/* Botón para aumentar cantidad */}
                             <button
-                                className="bg-green-600 hover:bg-green-800 text-white font-medium border rounded-lg px-3 py-2"
+                                className="bg-green-600 hover:bg-green-800 text-white font-medium border rounded-lg px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed "
+                                disabled={product.quantity >= product.stock}
                                 onClick={() => updateProductQuantity(product.id, product.quantity + 1)}  // Aumentar la cantidad
                             >
                                 +
