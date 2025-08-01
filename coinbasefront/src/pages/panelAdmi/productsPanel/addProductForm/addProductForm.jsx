@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAuth } from "../../../../context/AuthContext";
+import { useGuardToken } from "../../../../utils/guard";
 
 export function AddProductForm() {
   const [productData, setProductData] = useState({
@@ -14,8 +15,28 @@ export function AddProductForm() {
   });
   const [imageFile, setImageFile] = useState(null);
   const { token } = useAuth();
+  const guard = useGuardToken();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const navigate = useNavigate();
+
+  const validateFields = () => {
+    const year = parseInt(productData.year, 10);
+    const price = parseFloat(productData.price);
+    const stock = parseInt(productData.stock, 10);
+    const currentYear = new Date().getFullYear();
+
+    if (!productData.name.trim()) return "Name is required";
+    if (!productData.country_origin.trim())
+      return "Country of origin is required";
+    if (isNaN(year) || year < 1700 || year > currentYear)
+      return "Year must be between 1700 and current year";
+    if (isNaN(price) || price <= 0)
+      return "Price must be a number greater than 0";
+    if (isNaN(stock) || stock < 0) return "Stock cannot be negative";
+
+    return null;
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -34,8 +55,37 @@ export function AddProductForm() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); 
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    if (guard()) {
+      setIsSubmitting(false);
+      return;
+    }
+    const error = validateFields();
+    console.log(error);
+    if (error) {
+      toast.error(error);
+      setIsSubmitting(false);
+      return;
+    }
 
+    if (imageFile) {
+      const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+      const maxSizeMB = 2;
+
+      if (!allowedTypes.includes(imageFile.type)) {
+        toast.error("Image must be JPEG, PNG, or WEBP.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (imageFile.size > maxSizeMB * 1024 * 1024) {
+        toast.error("Image must be less than 2MB.");
+        setIsSubmitting(false);
+        return;
+      }
+    }
     const formData = new FormData();
     formData.append("name", productData.name);
     formData.append("description", productData.description);
@@ -43,9 +93,7 @@ export function AddProductForm() {
     formData.append("country_origin", productData.country_origin);
     formData.append("price", productData.price);
     formData.append("stock", productData.stock);
-    if (imageFile) {
-      formData.append("image", imageFile);
-    }
+    formData.append("image", imageFile);
 
     try {
       const response = await fetch("http://localhost:5000/api/products", {
@@ -66,6 +114,8 @@ export function AddProductForm() {
     } catch (error) {
       console.error("Error adding product:", error);
       toast.error("An error occurred while adding the product.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -187,9 +237,7 @@ export function AddProductForm() {
                     <span className="text-sm text-gray-500">
                       Año: {productData.year}
                     </span>
-                    <span className="font-medium">
-                      $ {productData.price}
-                    </span>
+                    <span className="font-medium">$ {productData.price}</span>
                     <button
                       type="button"
                       className="bg-indigo-600 text-slate-200 mt-auto font-medium border rounded-lg px-4 py-2 cursor-default"
@@ -201,13 +249,15 @@ export function AddProductForm() {
                 </div>
               </div>
             </div>
-           
           )}
 
           <div className="flex justify-between mt-8">
             <button
               type="submit"
-              className="bg-blue-600 text-white px-6 py-2 rounded"
+              disabled={isSubmitting}
+              className={`${
+                isSubmitting ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600"
+              } text-white px-6 py-2 rounded`}
             >
               Save Product
             </button>

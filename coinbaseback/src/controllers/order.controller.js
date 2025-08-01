@@ -59,17 +59,13 @@ export class OrderController {
       }
 
       if (["paid", "cancel"].includes(payment.status)) {
-        return res
-          .status(400)
-          .json({
-            error: `Cannot upload receipt. Current payment status: ${payment.status}`,
-          });
+        return res.status(400).json({
+          error: `Cannot upload receipt. Current payment status: ${payment.status}`,
+        });
       }
 
       if (order.payment?.receipt) {
         const oldPath = path.join(
-          __dirname,
-          "..",
           "uploads",
           path.basename(order.payment.receipt)
         );
@@ -210,10 +206,17 @@ export class OrderController {
         return res.status(400).json({ error: "Order is not pending" });
       }
 
-      // Actualizar estado a "paid"
+      for (const item of order.OrderDetail) {
+        const product = await ProductService.getById(item.id_product);
+        if (!product || product.stock < item.quantity) {
+          return res.status(400).json({
+            error: `Not enough stock for product ${item.product_name}`,
+          });
+        }
+      }
+
       await OrderService.updateStatus(order.id, "paid");
 
-      // Restar stock
       for (const item of order.OrderDetail) {
         await ProductService.decreaseStock(item.id_product, item.quantity);
       }
@@ -237,7 +240,9 @@ export class OrderController {
 
   static async create(req, res) {
     try {
+      console.log(req.body);
       const newOrder = await OrderService.create(req.body);
+
       await sendManualPaymentInstructions({
         id: newOrder.id,
         client_email: newOrder.client_email,
@@ -249,6 +254,7 @@ export class OrderController {
         .status(201)
         .json({ message: "Order created successfully", order: newOrder });
     } catch (error) {
+      console.error(error);
       res
         .status(500)
         .json({ error: "Error creating order", details: error.message });
@@ -278,29 +284,27 @@ export class OrderController {
 
   static async update(req, res) {
     try {
-      const id_order = Number(req.params.id_order);
+      const id_order = req.id_order; // viene del middleware
+      const order = req.order; // también del middleware
       const {
         clientName,
         clientEmail,
-        status, // ✅ nuevo campo
+        status,
         trackingStatus,
         deliveryAddress,
         deliveryCity,
         deliveryCountry,
       } = req.body;
 
-      // Buscar orden existente
-      const order = await OrderService.getById(id_order);
-      if (!order) return res.status(404).json({ error: "Order not found" });
-
-      // Actualizar orden
       const updatedOrder = await OrderService.update(id_order, {
         client_name: clientName,
         client_email: clientEmail,
-        status: status || order.status, // si no viene, se mantiene el actual
+        status: status || order.status,
       });
 
-      // Actualizar delivery (si existe)
+      if (status === "pending" && order.payment?.status !== "pending") {
+        await PaymentService.update(order.id, { status: "pending" });
+      }
       if (order.id_delivery) {
         await DeliveryService.update(order.id_delivery, {
           address: deliveryAddress,
@@ -310,9 +314,20 @@ export class OrderController {
         });
       }
 
-      // Obtener orden actualizada con delivery y payment incluidos
-      const fullOrder = await OrderService.getById(id_order);
+      const prevStatus = order.status;
+      const newStatus = status || prevStatus;
+      const shouldRevertStock =
+        ["paid", "shipped"].includes(prevStatus) &&
+        ["cancelled", "pending"].includes(newStatus);
+      console.log(shouldRevertStock);
+      if (shouldRevertStock) {
+        const orderItems = await OrderService.getOrderItems(id_order);
+        for (const item of orderItems) {
+          await ProductService.increaseStock(item.id_product, item.quantity);
+        }
+      }
 
+      const fullOrder = await OrderService.getById(id_order);
       return res.json(fullOrder);
     } catch (error) {
       console.error(error);

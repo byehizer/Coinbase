@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { useShoppingCart } from "../context/shoppingcartcontext";
 
 function useQuery() {
   const { search } = useLocation();

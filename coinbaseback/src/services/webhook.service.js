@@ -23,8 +23,10 @@ export class WebhookService {
     const charge = await this.getCharge(paymentIntent);
     const paymentMethodEnum = this.resolvePaymentMethod(paymentIntent, charge);
 
+    console.log(`Order a cambiar metodo de pago: ${orderId}`);
+
     // 1. Actualizar el estado del pago
-    await PaymentService.update(orderId, {
+    await PaymentService.updateByOrderId(orderId, {
       status: "approved",
       method: paymentMethodEnum,
       paymentIntentId: paymentIntent.id,

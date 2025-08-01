@@ -16,7 +16,6 @@ export default function EditOrderForm() {
   const [loading, setLoading] = useState(true);
   const [isReadOnly, setIsReadOnly] = useState(false);
 
-  /* ─── Obtener orden completa desde DB ─── */
   useEffect(() => {
     if (guard()) return;
 
@@ -62,12 +61,59 @@ export default function EditOrderForm() {
     setOrder((prev) => ({ ...prev, [field]: value }));
 
   /* ─── PUT /orders/:id_order ─── */
+
+  const validateOrder = () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const {
+      clientName,
+      clientEmail,
+      status,
+      trackingStatus,
+      address,
+      city,
+      country,
+    } = order;
+
+    if (!clientName.trim()) return "Client name is required.";
+    if (!clientEmail.trim()) return "Client email is required.";
+    if (!emailRegex.test(clientEmail)) return "Client email is invalid.";
+    if (
+      !["pending", "paid", "shipped", "delivered", "cancelled"].includes(status)
+    )
+      return "Invalid order status.";
+
+    if (
+      ["pending", "cancelled"].includes(status) &&
+      trackingStatus !== "pending"
+    )
+      return "Tracking status cannot be changed while order is pending or cancelled.";
+
+    if (["shipped", "delivered"].includes(status)) {
+      if (!address.trim()) return "Address is required for shipping.";
+      if (!city.trim()) return "City is required for shipping.";
+      if (!country.trim()) return "Country is required for shipping.";
+    }
+
+    return null;
+  };
+  const goBack = () =>{
+    navigate(-1);
+    return;
+  }
+
   const updateOrder = async () => {
     if (guard()) return;
+
+    const error = validateOrder();
+    if (error) {
+      toast.error(error);
+      return;
+    }
+
     const body = {
       clientName: order.clientName,
       clientEmail: order.clientEmail,
-      status: order.status, // ← OrderStatus
+      status: order.status,
       trackingStatus: order.trackingStatus,
       deliveryAddress: order.address,
       deliveryCity: order.city,
@@ -83,10 +129,20 @@ export default function EditOrderForm() {
         },
         body: JSON.stringify(body),
       });
-      if (res.status === 401) return guard();
-      if (!res.ok) throw new Error(await res.text());
 
-      const u = await res.json();
+      if (res.status === 401) return guard();
+
+      const responseBody = await res.json();
+
+      if (!res.ok) {
+        const message =
+          responseBody.error || responseBody.message || "Update failed";
+        toast.error(message);
+        return;
+      }
+
+      const u = responseBody;
+
       setOrder({
         ...u,
         address: u.address || "",
@@ -95,12 +151,14 @@ export default function EditOrderForm() {
         trackingStatus: u.trackingStatus || "",
         receipt: u.receipt || null,
       });
+
       toast.success("Order updated");
       setTimeout(() => {
         navigate("/admin/orders");
       }, 1500);
-    } catch {
+    } catch (err) {
       toast.error("Update failed");
+      console.error(err); // opcional, útil para debug
     }
   };
 
@@ -110,11 +168,19 @@ export default function EditOrderForm() {
     try {
       const res = await fetch(
         `http://localhost:5000/api/orders/${order.id}/${action}`,
-        { method: "PATCH", headers: { Authorization: `Bearer ${token}` } }
+        {
+          method: "PATCH",
+          headers: { Authorization: `Bearer ${token}` },
+        }
       );
-      console.log(res);
+
       if (res.status === 401) return guard();
-      if (!res.ok) throw new Error(await res.text());
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(errorText || `Error trying to ${action}`);
+      }
+
       const u = await res.json();
       setOrder({
         ...u,
@@ -128,8 +194,8 @@ export default function EditOrderForm() {
       setTimeout(() => {
         navigate("/admin/orders");
       }, 1500);
-    } catch {
-      toast.error(`Error trying to ${action} order`);
+    } catch (err) {
+      toast.error(`Error: ${err.message}`);
     }
   };
 
@@ -250,7 +316,7 @@ export default function EditOrderForm() {
             className="w-full border p-2 rounded"
             value={order.trackingStatus}
             onChange={(e) => setField("trackingStatus", e.target.value)}
-            disabled={isReadOnly}
+            disabled={isReadOnly || order.status === "pending"}
           >
             <option value="">--</option>
             <option value="pending">Pending</option>
@@ -315,12 +381,11 @@ export default function EditOrderForm() {
 
       {/* Botones */}
       <div className="flex flex-wrap justify-center gap-4 mt-6">
-
         <button
           className="bg-blue-600 text-white px-4 py-2 rounded"
-          onClick={updateOrder}
+          onClick={isReadOnly ? goBack : updateOrder}
         >
-          Save Changes
+          {`${isReadOnly ? "Volver" : "Save Changes"}`}
         </button>
 
         {showAcceptReject && (

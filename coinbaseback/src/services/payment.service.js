@@ -21,8 +21,7 @@ export class PaymentService {
     });
   }
 
- static async updateReceipt(orderId, fileUrl) {
-    
+  static async updateReceipt(orderId, fileUrl) {
     const order = await prisma.order.findUnique({
       where: { id: orderId },
       include: { payment: true },
@@ -98,6 +97,24 @@ export class PaymentService {
     return prisma.payment.update({
       where: { id: Number(id) },
       data: cleanData,
+    });
+  }
+
+  static async updateByOrderId(orderId, data) {
+    // Buscar la orden con su id_payment
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      select: { id_payment: true },
+    });
+
+    if (!order || !order.id_payment) {
+      throw new Error("Order or payment not found.");
+    }
+
+    // Actualizar el payment correspondiente
+    return await prisma.payment.update({
+      where: { id: order.id_payment },
+      data,
     });
   }
 

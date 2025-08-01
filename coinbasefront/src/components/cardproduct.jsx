@@ -23,7 +23,7 @@ export function CardProduct({ product }) {
         style={{ transformOrigin: "center" }}
       >
         <img
-          src={product.image_url}
+          src={`http://localhost:5000${product.image_url}`}
           alt={product.name}
           className="w-full h-48 object-contain bg-white mx-auto"
         />

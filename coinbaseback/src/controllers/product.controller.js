@@ -1,6 +1,10 @@
 import { ProductService } from "../services/product.service.js";
 import fs from "fs/promises";
-import path from "path";
+import path, { dirname } from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export class ProductController {
   static async getAll(req, res) {
@@ -36,37 +40,24 @@ export class ProductController {
   }
 
   static async create(req, res) {
-    const { name, description, year, country_origin, price, stock } = req.body;
     const image_url = `/uploads/${req.file.filename}`;
-    const parsedYear = parseInt(year, 10);
-    const parsedPrice = parseFloat(price);
-    const parsedStock = parseInt(stock, 10);
+    const { name, description, year, country_origin, price, stock } =
+      req.validatedProduct;
 
-    if (isNaN(parsedYear) || isNaN(parsedPrice) || isNaN(parsedStock)) {
-      if (req.file?.path) {
-        try {
-          await fs.unlink(req.file.path);
-        } catch (err) {
-          console.error(
-            "Error deleting file after failed validation:",
-            err.message
-          );
-        }
-      }
-
-      return res.status(400).json({
-        message: "Invalid input: year, price, and stock must be valid numbers.",
-      });
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+    if (req.file && !allowedTypes.includes(req.file.mimetype)) {
+      await fs.unlink(req.file.path);
+      return res.status(400).json({ message: "Unsupported image format." });
     }
 
     try {
       const newProduct = await ProductService.create({
         name,
         description,
-        year: parsedYear,
+        year,
         country_origin,
-        price: parsedPrice,
-        stock: parsedStock,
+        price,
+        stock,
         image_url,
       });
 
@@ -82,6 +73,7 @@ export class ProductController {
           console.error("Error deleting file after failure:", err.message);
         }
       }
+
       res.status(500).json({
         message: `Error creating product: ${error.message}`,
       });
@@ -90,32 +82,26 @@ export class ProductController {
 
   static async update(req, res) {
     const id_product = parseInt(req.params.id_product, 10);
-    const { name, description, year, country_origin, price, stock } = req.body;
+    if (isNaN(id_product)) {
+      return res.status(400).json({ message: "Invalid product ID" });
+    }
+    const { name, description, year, country_origin, price, stock } =
+      req.validatedProduct;
 
     try {
       const existingProduct = await ProductService.getById(id_product);
       let image_url = existingProduct.image_url;
       if (req.file) {
         image_url = `/uploads/${req.file.filename}`;
-
-        if (existingProduct.image_url) {
-          const oldImagePath = path.join(
-            "uploads",
-            path.basename(existingProduct.image_url)
-          );
-          await fs.unlink(oldImagePath).catch((err) => {
-            console.error("Error deleting old image:", err.message);
-          });
-        }
       }
 
       const updatedProduct = await ProductService.update(id_product, {
         name,
         description,
-        year: parseInt(year),
+        year,
         country_origin,
-        price: parseFloat(price),
-        stock: parseInt(stock),
+        price,
+        stock,
         image_url,
       });
 
@@ -135,21 +121,27 @@ export class ProductController {
 
     try {
       const product = await ProductService.getById(Number(id_product));
+      
       if (!product) {
         return res.status(404).json({ message: "Product not found" });
       }
 
-      const relatedOrder= await ProductService.relatedOrderDetailsCount(Number(id_product));
+      const relatedOrder = await ProductService.relatedOrderDetailsCount(
+        Number(id_product)
+      );
 
-   if (relatedOrder === 0 && product.image_url) {
-      const imagePath = path.join("uploads", path.basename(product.image_url));
-      try {
-        await fs.unlink(imagePath);
-        console.log("Imagen eliminada:", imagePath);
-      } catch (err) {
-        console.error("No se pudo eliminar la imagen:", err.message);
+      if (relatedOrder === 0 && product.image_url) {
+        const imagePath = path.join(
+          "uploads",
+          path.basename(product.image_url)
+        );
+        try {
+          await fs.unlink(imagePath);
+          console.log("Imagen eliminada:", imagePath);
+        } catch (err) {
+          console.error("No se pudo eliminar la imagen:", err.message);
+        }
       }
-    }
 
       await ProductService.delete(Number(id_product));
 

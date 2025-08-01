@@ -19,7 +19,7 @@ export function ShoppingCart() {
             <div className="grid gap-y-3 py-3  overflow-x-hidden overflow-y-auto max-sm:max-h-[calc(100vh-250px)] ">
                 {products.map((product) => (
                     <div key={product.id} className="flex gap-x-4 items-center w-full min-w-0">
-                        <img src={product.image_url} alt={product.name} className="w-12" />
+                        <img src={`http://localhost:5000${product.image_url}`} alt={product.name} className="w-12" />
                         <h5 className="w-32 text-ellipsis truncate font-medium">
                             {product.name}
                         </h5>

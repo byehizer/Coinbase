@@ -69,7 +69,7 @@ const handleAddToCart = () => {
                md:w-[400px] md:h-[400px] 
                lg:w-[500px] lg:h-[500px] 
                object-contain shadow-2xl"
-              src={product.image_url}
+              src={`http://localhost:5000${product.image_url}`}
               alt={product.name}
               onClick={toggleModal}
             />
@@ -77,7 +77,7 @@ const handleAddToCart = () => {
           <div className="md:hidden w-screen px-4 flex justify-center shadow-2xl">
             <img
               className="w-full max-w-[600px] h-[300px] object-contain"
-              src={product.image_url}
+              src={`http://localhost:5000${product.image_url}`}
               alt={product.name}
             />
           </div>
@@ -92,7 +92,7 @@ const handleAddToCart = () => {
             <div className="relative">
               <img
                 className="w-[400px] h-[400px] rounded-xl cursor-pointer"
-                src={product.image_url}
+                src={`http://localhost:5000${product.image_url}`}
                 alt={product.name}
               />
               <AiOutlineClose

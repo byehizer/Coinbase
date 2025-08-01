@@ -55,10 +55,10 @@ export function OrdersPanel() {
     }
   };
 
-  const redirectToAddOrder = () => {
+  /*const redirectToAddOrder = () => {
     if (guard()) return;
     navigate("/admin/orders/add");
-  };
+  };*/
 
   const handleGoEdit = (order) => {
     if (guard()) return;
@@ -162,12 +162,12 @@ export function OrdersPanel() {
 
         {/* Botones inferiores */}
         <div className="mt-6 flex flex-wrap gap-4">
-          <button
+          {/*<button
             className="bg-blue-600 text-white px-4 py-2 rounded"
             onClick={redirectToAddOrder}
           >
             Add Order
-          </button>
+          </button>*/}
           <button
             className="bg-red-600 text-white px-4 py-2 rounded"
             onClick={() => {

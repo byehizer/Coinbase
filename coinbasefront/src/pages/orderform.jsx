@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useShoppingCart } from "../context/shoppingcartcontext";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export function OrderForm() {
   const [formData, setFormData] = useState({
@@ -11,9 +12,29 @@ export function OrderForm() {
     country: "",
     payment_method: "",
   });
-  const [paymentMethod, setPaymentMethod] = useState("");
-  const { totalAmount, products } = useShoppingCart();
+  const { totalAmount, products, clearShoppingCart} = useShoppingCart();
   const navigate = useNavigate();
+  const validateForm = () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!formData.client_name.trim()) return "Name is required";
+    if (!emailRegex.test(formData.client_email)) return "Invalid email";
+    if (!formData.address.trim()) return "Address is required";
+    if (!formData.city.trim()) return "City is required";
+    if (!formData.country.trim()) return "Country is required";
+    if (formData.client_name.trim().length < 3)
+      return "Name must be at least 3 characters";
+    if (formData.address.trim().length < 5)
+      return "Address must be at least 5 characters";
+    if (!/^[a-zA-Z\s]+$/.test(formData.country))
+      return "Country must contain only letters";
+    if (!formData.client_email.includes(".")) return "Invalid email domain";
+    if (!formData.payment_method) return "Payment method is required";
+    if (products.length === 0) return "Your cart is empty";
+    if (totalAmount <= 0) return "Total amount must be greater than 0";
+
+    return null; // Everything is valid
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -28,10 +49,16 @@ export function OrderForm() {
       total: totalAmount,
       items: products,
     };
+    console.log(payload);
+    console.log(products);
+    const error = validateForm();
+    if (error) {
+      toast.error(error);
+      return;
+    }
 
     try {
       if (formData.payment_method === "Stripe") {
-        // 1. Redirigir a Stripe Checkout
         const res = await fetch("http://localhost:5000/api/stripe/checkout", {
           method: "POST",
           headers: {
@@ -42,6 +69,7 @@ export function OrderForm() {
 
         const data = await res.json();
         window.location.href = data.url;
+        clearShoppingCart();
       } else {
         // 2. Orden para Venmo/Zelle
         const res = await fetch("http://localhost:5000/api/orders", {
@@ -51,14 +79,20 @@ export function OrderForm() {
           },
           body: JSON.stringify(payload),
         });
-
-        const data = await res.json();
-        alert("Order created! Check your email to upload the receipt.");
-        navigate("/track-order");
+        if (res.ok) {
+          const data = await res.json();
+          alert("Order created! Check your email to upload the receipt.");
+          clearShoppingCart();
+          navigate("/track-order");
+        } else {
+          const error = await res.json();
+          console.error(error);
+          throw new Error(`${error.error || "Unknown error"}`);
+        }
       }
     } catch (err) {
-      console.error("Error creating order:", err);
-      alert("Something went wrong");
+      console.error(err);
+      toast.error(`${err}`);
     }
   };
 

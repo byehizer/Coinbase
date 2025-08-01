@@ -14,7 +14,7 @@ export function Home() {
 
         const backendProducts = backendProductsRaw.map((product) => ({
           ...product,
-          image_url: `http://localhost:5000${product.image_url}`,
+          image_url: `${product.image_url}`,
           price: Number(product.price),
           year: Number(product.year),
           stock: Number(product.stock),

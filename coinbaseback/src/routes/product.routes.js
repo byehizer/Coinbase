@@ -3,6 +3,7 @@ import { ProductController } from "../controllers/product.controller.js";
 import { authorization } from "../middlewares/authorization.js";
 import { authenticate } from "../middlewares/authenticate.js";
 import upload from "../middlewares/upload.js";
+import { validateProduct } from "../middlewares/validateProducts.js";
 
 export const productRouter = Router();
 
@@ -10,12 +11,32 @@ export const productRouter = Router();
 
 productRouter.get("/", ProductController.getAll);
 productRouter.get("/:id", ProductController.getById);
-productRouter.post("/", authenticate, authorization("admin"),upload.single("image"), ProductController.create);
+productRouter.post(
+  "/",
+  authenticate,
+  authorization("admin"),
+  upload.single("image"),
+  async (req, res, next) => {
+    try {
+      await validateProduct(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  },
+  ProductController.create
+);
 productRouter.put(
   "/:id_product",
   authenticate,
   authorization("admin"),
   upload.single("image"),
+   async (req, res, next) => {
+    try {
+      await validateProduct(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  },
   ProductController.update
 );
 productRouter.delete(

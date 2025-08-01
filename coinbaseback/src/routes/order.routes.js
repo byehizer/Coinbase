@@ -3,14 +3,26 @@ import { OrderController } from "../controllers/order.controller.js";
 import { authenticate } from "../middlewares/authenticate.js";
 import { authorization } from "../middlewares/authorization.js";
 import upload from "../middlewares/upload.js";
+import { validateCreateOrder } from "../middlewares/validateCreateOrder.js";
+import { validateOrderUpdateForm } from "../middlewares/validateOrderUpdateForm.js";
 
 export const orderRouter = Router();
 
 //Vamos a tener que agregarle los middlewares cuando el token al iniciar sesion funcione en el frontend, porque en el backend ya esta creado
 
-orderRouter.get("/", authenticate, authorization("admin"), OrderController.getAll);
-orderRouter.get("/:id_order",authenticate,authorization("admin"),OrderController.getById);
-orderRouter.post("/", OrderController.create);
+orderRouter.get(
+  "/",
+  authenticate,
+  authorization("admin"),
+  OrderController.getAll
+);
+orderRouter.get(
+  "/:id_order",
+  authenticate,
+  authorization("admin"),
+  OrderController.getById
+);
+orderRouter.post("/", validateCreateOrder, OrderController.create);
 orderRouter.put(
   "/:id_order/status",
   authenticate,
@@ -21,6 +33,13 @@ orderRouter.put(
   "/:id_order",
   authenticate,
   authorization("admin"),
+  async (req, res, next) => {
+    try {
+      await validateOrderUpdateForm(req,res,next);
+    } catch (error) {
+      next(error);
+    }
+  },
   OrderController.update
 );
 orderRouter.delete(
@@ -29,8 +48,27 @@ orderRouter.delete(
   authorization("admin"),
   OrderController.delete
 );
-orderRouter.patch("/:id/accept", authenticate, authorization("admin"), OrderController.approveOrder);
-orderRouter.patch("/:id/reject", authenticate, authorization("admin"), OrderController.rejectOrder);
-orderRouter.patch("/:orderId/refund",  authenticate, authorization("admin"),OrderController.refund);
-orderRouter.post("/:id/upload-receipt", upload.single("image"), OrderController.uploadReceipt);
+orderRouter.patch(
+  "/:id/accept",
+  authenticate,
+  authorization("admin"),
+  OrderController.approveOrder
+);
+orderRouter.patch(
+  "/:id/reject",
+  authenticate,
+  authorization("admin"),
+  OrderController.rejectOrder
+);
+orderRouter.patch(
+  "/:orderId/refund",
+  authenticate,
+  authorization("admin"),
+  OrderController.refund
+);
+orderRouter.post(
+  "/:id/upload-receipt",
+  upload.single("image"),
+  OrderController.uploadReceipt
+);
 orderRouter.post("/public/:id", OrderController.publicgetbyid);

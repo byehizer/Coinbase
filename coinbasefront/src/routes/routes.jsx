@@ -29,9 +29,8 @@ export const appRoutesAdmin = [
 
 export const appRoutesAdminAddProduct = [
     { path: "/admin/products/add", element: <AddProductForm />, name: "ProductsFormAdd" },
-    { path: "/admin/orders/add", element: <AddOrdersForm />, name: "OrdersFormAdd" },
+    //{ path: "/admin/orders/add", element: <AddOrdersForm />, name: "OrdersFormAdd" },
     { path: "/admin/products/edit", element: <EditProductForm />, name: "editProductForm" },
-    { path: "/admin/orders/add", element: <AddOrdersForm/>, name: "OrdersFormAdd" },
     { path: "/admin/orders/edit", element: <EditOrderForm />, name: "EditOrderForm" },
     
 ]

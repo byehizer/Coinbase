@@ -10,6 +10,9 @@ export default function AdminLogin() {
     const navigate = useNavigate();
     const { login, User } = useAuth();
 
+      const isValidEmail = (email) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+
     useEffect(() => {
         if (User) {
             navigate('/admin/products');
@@ -21,6 +24,10 @@ export default function AdminLogin() {
         e.preventDefault();
         setError('');
 
+        if (!isValidEmail) {
+            setError('Coloca un Email Valido');
+            return;
+        }
         try {
 
             const response = await login(email, password);

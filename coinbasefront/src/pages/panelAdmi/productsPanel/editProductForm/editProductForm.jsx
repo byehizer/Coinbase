@@ -3,11 +3,13 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useModal } from "../../../../context/ModalContext";
 import { toast } from "react-toastify";
 import { useAuth } from "../../../../context/AuthContext";
+import { useGuardToken } from "../../../../utils/guard";
 
-export  default function EditProductForm() {
+export default function EditProductForm() {
   const { openModal } = useModal();
   const navigate = useNavigate();
   const location = useLocation();
+  const guard= useGuardToken();
   const product = location.state?.product || {};
   const { token } = useAuth();
   const [productData, setProductData] = useState({
@@ -20,9 +22,30 @@ export  default function EditProductForm() {
   });
   const [file, setFile] = useState(null);
   const [previewImage, setPreviewImage] = useState("");
-  
+  const [loading, setLoading] = useState(false);
+
+  const validateFields = () => {
+    const year = parseInt(productData.year, 10);
+    const price = parseFloat(productData.price);
+    const stock = parseInt(productData.stock, 10);
+    const currentYear = new Date().getFullYear();
+
+    if (!productData.name.trim()) return "Name is required";
+    if (!productData.country_origin.trim())
+      return "Country of origin is required";
+    if (isNaN(year) || year < 1700 || year > currentYear)
+      return "Year must be between 1700 and current year";
+    if (isNaN(price) || price <= 0)
+      return "Price must be a number greater than 0";
+    if (isNaN(stock) || stock < 0) return "Stock cannot be negative";
+
+    return null; // No errors
+  };
 
   useEffect(() => {
+    if (guard()){
+      return;
+    }
     if (product) {
       setProductData({
         name: product.name || "",
@@ -57,14 +80,15 @@ export  default function EditProductForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (
-      !productData.name ||
-      !productData.year ||
-      !productData.price ||
-      !productData.stock ||
-      !productData.country_origin
-    ) {
-      toast.error("Only description and image can be empty.");
+    if (guard()) {
+      return;
+    }
+    setLoading(true);
+
+    const error = validateFields();
+    if (error) {
+      toast.error(error);
+      setLoading(false);
       return;
     }
 
@@ -90,15 +114,18 @@ export  default function EditProductForm() {
       );
 
       if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
+        const data = await response.json(); // <- podés acceder al mensaje del backend
+        throw new Error(data.message || `Error ${response.status}`);
       }
 
       toast.success("Product updated successfully");
       navigate("/admin/products");
     } catch (error) {
-      console.error("Error updating product:", error);
-      toast.error("An error occurred while updating the product");
+      const message =
+        error.message || "An error occurred while updating the product";
+      toast.error(message);
     }
+    setLoading(false);
   };
 
   const handleGoBack = () => {
@@ -190,7 +217,9 @@ export  default function EditProductForm() {
           <div className="mb-4">
             {previewImage && (
               <div className="mt-8 relative">
-                <h3 className="text-sm font-medium text-gray-700">Preview view</h3>
+                <h3 className="text-sm font-medium text-gray-700">
+                  Preview view
+                </h3>
                 <div className="flex justify-center mt-6 relative">
                   <div
                     className="w-64 rounded-lg border bg-gray-400/10 shadow-xl flex flex-col transform transition-transform duration-300 hover:scale-105 z-[50] relative"
@@ -222,7 +251,7 @@ export  default function EditProductForm() {
                         className="bg-indigo-600 text-slate-200 mt-auto font-medium border rounded-lg px-4 py-2 cursor-default"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        Preview view 
+                        Preview view
                       </button>
                     </div>
                   </div>
@@ -245,10 +274,11 @@ export  default function EditProductForm() {
           </div>
           <div className="flex justify-between">
             <button
+              disabled={loading}
               type="submit"
               className="bg-blue-600 text-white px-6 py-2 rounded"
             >
-              Save Product
+              {loading ? "Saving..." : "Save Product"}
             </button>
             <button
               type="button"

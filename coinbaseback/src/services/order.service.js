@@ -116,6 +116,7 @@ export class OrderService {
       });
 
       for (const item of items) {
+        console.log(item.image_url);
         await OrderDetailService.createTx(tx, {
           id_order: order.id,
           id_product: item.id,
@@ -161,6 +162,17 @@ async getMinimal(id) {
     });
   }
 
+  static async getOrderItems(order_id) {
+    return await prisma.orderDetail.findMany({
+      where: {
+        id_order: order_id,
+      },
+      select: {
+        id_product: true,
+        quantity: true,
+      },
+    });
+  }
 
   static async delete(id) {
     return await prisma.$transaction(async (tx) => {

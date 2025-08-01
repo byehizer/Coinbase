@@ -31,7 +31,7 @@ export function ShoppingCartPage() {
                             <div key={product.id} className="flex flex-col sm:flex-row justify-between items-center border-b py-4 gap-4">
                                 <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 text-center sm:text-left">
                                     <img
-                                        src={product.image_url}
+                                        src={`http://localhost:5000${product.image_url}`}
                                         alt={product.name}
                                         className="w-28 h-28 sm:w-32 sm:h-32 object-cover rounded-lg"
                                     />
