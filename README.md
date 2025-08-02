@@ -147,6 +147,19 @@ https://8f3c-xx-xx-xx-xx.ngrok.io/api/stripe/webhook
 > 🔐 Asegurate de que `STRIPE_WEBHOOK_SECRET` esté correctamente configurado si estás verificando firmas en tu backend.
 
 ---
+## 📚 Documentación API (Swagger)
+
+La documentación de la API está disponible en:
+
+
+```
+http://localhost:5000/api-docs
+
+```
+
+Al iniciar el servidor en desarrollo, podés acceder a esta URL para ver y probar todos los endpoints documentados.
+
+
 
 ### ▶️ Ejecutar el servidor en desarrollo
 
