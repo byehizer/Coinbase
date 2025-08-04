@@ -2,170 +2,141 @@
 
 Coinbase es una plataforma web desarrollada para la venta de billetes antiguos. Permite a los usuarios comprar sin necesidad de crear una cuenta, gestionar pedidos y pagos de forma sencilla, y cuenta con un panel de administración protegido. El sistema está completamente documentado, probado y listo para producción.
 
-## 🚀 Tecnologías utilizadas
+## 📑 Tabla de Contenido
 
-### 🖼️ Frontend
-- React.js
-- Tailwind CSS
-- Fetch API (para consumo de la API)
+* [🚀 Tecnologías Utilizadas](#-tecnolog%C3%ADas-utilizadas)
+* [📦 Características Principales](#-caracter%C3%ADsticas-principales)
+* [🛠️ Instalación y Configuración](#-instalaci%C3%B3n-y-configuraci%C3%B3n)
+* [🐳 Docker (opcional)](#-docker-opcional)
+* [🧱 Migraciones y Seeds](#-migraciones-y-seeds)
+* [🌐 Frontend y Stripe](#-frontend-y-stripe)
+* [📡 Webhooks y Ngrok](#-webhooks-y-ngrok)
+* [📬 API Docs](#-api-docs)
+* [🧠 Mejoras a Implementar](#-mejoras-a-implementar)
+* [👤 Autor](#-autor)
 
-### ⚙️ Backend
-- Node.js
-- Express
-- JWT (para autenticación del administrador)
-- Multer (para subida de imágenes)
-- SendGrid (para envío de correos)
-- Stripe (para pagos con tarjetas, Apple Pay y Google Pay)
-- Swagger (para documentación de la API)
+## 🚀 Tecnologías Utilizadas
 
-### 🛢️ Base de datos
-- PostgreSQL
-- Prisma ORM
+* **Frontend**: React.js, Tailwind CSS, Fetch API
+* **Backend**: Node.js con Express, JWT (panel admin), Multer, SendGrid, Stripe, Swagger/OpenAPI
+* **Base de Datos**: PostgreSQL, Prisma ORM
+* **Arquitectura**: Clean Architecture, estructura modular (controllers, services, routes, middlewares)
 
-### 🧱 Arquitectura
-- Clean Architecture
-- Estructura modular (controladores, servicios, middlewares, rutas, etc.)
+## 📦 Características Principales
 
-## 📦 Características principales
+* 🛒 Carrito funcional sin necesidad de cuenta
+* 💳 Pagos con Stripe (tarjetas, Apple Pay, Google Pay)
+* 💸 Soporte para Zelle y Venmo (con comprobante)
+* 🧾 Generación de órdenes con formulario del cliente
+* 🔐 Panel admin seguro con JWT
+* ✉️ Envío de emails con SendGrid
+* 🖼️ Subida de imágenes al backend (`/uploads`)
+* 📄 API documentada con Swagger
+* 📱 Diseño responsive para móviles
 
-- 🛒 Carrito de compras funcional sin necesidad de registrarse
-- 🧾 Creación de órdenes con formulario de datos del cliente
-- 💳 Integración con Stripe: pagos con tarjetas, Apple Pay y Google Pay
-- 💸 Soporte para Zelle y Venmo mediante carga de comprobante
-- 📎 Validación y control del comprobante según estado de la orden
-- ✉️ Envío de correos de confirmación de pedido con SendGrid
-- 🔐 Panel privado de administrador protegido con JWT
-- 📋 Gestión de productos, órdenes, pagos y entregas desde el panel admin
-- 🗃️ Subida de imágenes a Backend (localmente en carpeta `/uploads`)
-- 📄 Documentación completa de la API con Swagger / OpenAPI
-- 📱 Diseño responsive adaptado a dispositivos móviles
+## 🛠️ Instalación y Configuración
 
-## 🧪 Instalación y configuración
+```bash
+# Clonar el repositorio
+https://github.com/byehizer/Coinbase.git
 
-### ⚙️ Requisitos previos
-
-- Node.js (v18+ recomendado)
-- PostgreSQL
-- Cuenta de Stripe
-- Cuenta de SendGrid
-
-### 📥 Clonar el repositorio
-
-```
-git clone https://github.com/byehizer/Coinbase.git
-cd Coinbase
+# Instalar dependencias backend
+cd backend
 npm install
+
+# Instalar dependencias frontend
+cd ../frontend
+npm install
+
+# Crear archivo .env con las variables necesarias
+
+# Iniciar backend
+cd backend
+npm run dev
+
+# Iniciar frontend
+cd ../frontend
+npm run dev
 ```
 
-### 🔐 Variables de entorno
+### Variables de entorno necesarias
 
-Crea un archivo `.env` en la raíz del proyecto con el siguiente contenido:
-
-```
+```env
 DATABASE_URL=postgresql://usuario:contraseña@localhost:5432/coinbase
 STRIPE_SECRET_KEY=tu_clave_secreta_de_stripe
 SENDGRID_API_KEY=tu_clave_de_sendgrid
-SENDGRID_SENDER="ejemplo@ejemplo.com"
-JWT_SECRET=una_clave_secreta_para_token
-FRONTEND_URL="http://localhost:0000"
+SENDGRID_SENDER=ejemplo@ejemplo.com
+JWT_SECRET=clave_para_jwt
+FRONTEND_URL=http://localhost:3000
 ```
 
-> 🔎 **Aclaración:**
-> - `DATABASE_URL` debe tener la conexión correcta a tu base de datos PostgreSQL.
-> - `STRIPE_SECRET_KEY` es la clave secreta de tu cuenta Stripe.
-> - `SENDGRID_API_KEY` es la clave API de SendGrid para enviar correos.
-> - `JWT_SECRET` es una cadena secreta para firmar los tokens JWT.
-> - Las imágenes se guardan localmente en la carpeta `/uploads` del backend, no en servicios externos.
+## 🐳 Docker (opcional)
 
-### 🐳 Uso con Docker y docker-compose (opcional)
-
-Si querés correr el backend y la base de datos con Docker, podés usar (configuralo antes):
-
-```
+```bash
 docker-compose up -d
 ```
 
-Esto levantará los servicios configurados en `docker-compose.yml` (como PostgreSQL y el backend).
-
 Para detener los servicios:
 
-```
+```bash
 docker-compose down
 ```
 
-> 🛠️ Asegurate de tener Docker y Docker Compose instalados en tu sistema.
+## 🧱 Migraciones y Seeds
 
-### 🧱 Migraciones y seed de la base de datos
-
-Para crear las tablas y estructuras en la base de datos, ejecutá las migraciones de Prisma:
-
-```
+```bash
 npx prisma migrate dev
-```
-
-Si tenés un archivo seed para precargar datos iniciales (como productos), podés ejecutarlo con:
-
-```
 npx prisma db seed
 ```
 
-> 💡 **Nota:**  
-> Asegurate que la variable `DATABASE_URL` en `.env` esté correctamente configurada antes de correr estas órdenes.
+## 🌐 Frontend y Stripe
 
-## 🌐 Frontend y conexión con Stripe
+Asegurate de que el valor de `FRONTEND_URL` apunte correctamente al dominio donde corre tu frontend.
 
-El frontend de Coinbase corre por separado. Asegurate de que el valor de `FRONTEND_URL` en tu `.env` del backend apunte correctamente al dominio o puerto donde corre el frontend.
-
-En entorno de desarrollo, podés correr el frontend por ejemplo en:
-
-```
+```bash
 npm run dev
 ```
 
-Desde otra carpeta, si está en React o Next.js.
+## 📡 Webhooks y Ngrok
 
-### 📡 Uso de ngrok para Stripe (desarrollo local)
+Para pruebas locales con Stripe:
 
-Para recibir webhooks de Stripe en desarrollo local (cuando estás trabajando en `localhost`), podés usar [ngrok](https://ngrok.com/):
-
-```
+```bash
 ngrok http 5000
 ```
 
-Esto te generará una URL pública como:
+Configurar webhooks en Stripe con:
 
 ```
-https://8f3c-xx-xx-xx-xx.ngrok.io
+https://tu-ngrok-id.ngrok.io/api/stripe/webhook
 ```
 
-Usá esa URL en el panel de Stripe para configurar tus webhooks, por ejemplo:
+## 📬 API Docs
 
-```
-https://8f3c-xx-xx-xx-xx.ngrok.io/api/stripe/webhook
-```
-
-> 🔐 Asegurate de que `STRIPE_WEBHOOK_SECRET` esté correctamente configurado si estás verificando firmas en tu backend.
-
----
-## 📚 Documentación API (Swagger)
-
-La documentación de la API está disponible en:
-
+Disponible en desarrollo en:
 
 ```
 http://localhost:5000/api-docs
-
 ```
 
-Al iniciar el servidor en desarrollo, podés acceder a esta URL para ver y probar todos los endpoints documentados.
+## 🧠 Mejoras a Implementar
+
+* [ ] Validaciones centralizadas con Zod o Joi
+* [ ] Manejo de errores robusto con `boom`
+* [ ] Subida directa de imágenes a Google Cloud Storage
+* [ ] Middleware de seguridad (`helmet`, `express-rate-limit`)
+* [ ] Tests unitarios y de integración (`Vitest`, `Jest`, `Supertest`)
+* [ ] CI/CD con GitHub Actions
+* [ ] Despliegue backend (Railway/Render)
+* [ ] Logs estructurados y monitoreo con Sentry
+* [ ] Uso de DTOs y capa de validación más formal
+* [ ] Crear entorno staging
+* [ ] Aislar lógica de pago como microservicio (si escala)
 
 
+## 👤 Autor
 
-### ▶️ Ejecutar el servidor en desarrollo
-
-Para iniciar el servidor backend en modo desarrollo, usá el siguiente comando:
-
-```
-npm run dev
-```
+* **Ehizer Jesus Valero Bastidas**
+* GitHub: [byehizer](https://github.com/byehizer)
+* Proyecto personal full-stack
 
