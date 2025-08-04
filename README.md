@@ -130,8 +130,6 @@ http://localhost:5000/api-docs
 * [ ] Despliegue backend (Railway/Render)
 * [ ] Logs estructurados y monitoreo con Sentry
 * [ ] Uso de DTOs y capa de validación más formal
-* [ ] Crear entorno staging
-* [ ] Aislar lógica de pago como microservicio (si escala)
 
 
 ## 👤 Autor
