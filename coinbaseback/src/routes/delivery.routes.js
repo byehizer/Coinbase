@@ -7,7 +7,7 @@ export const deliveryRouter = Router();
 
 //Vamos a tener que agregarle los middlewares cuando el token al iniciar sesion funcione en el frontend, porque en el backend ya esta creado
 
-deliveryRouter.get(
+/*deliveryRouter.get(
   "/",
   authenticate,
   authorization("admin"),
@@ -42,4 +42,4 @@ deliveryRouter.delete(
   authenticate,
   authorization("admin"),
   DeliveryController.delete
-);
+);*/

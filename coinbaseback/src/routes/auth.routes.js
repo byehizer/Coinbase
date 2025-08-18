@@ -5,4 +5,4 @@ import { authenticate } from "../middlewares/authenticate.js";
 export const authRouter = Router();
 
 authRouter.post("/login", AuthController.login);
-authRouter.post("/profile", authenticate, AuthController.profile);
+/*authRouter.post("/profile", authenticate, AuthController.profile);*/

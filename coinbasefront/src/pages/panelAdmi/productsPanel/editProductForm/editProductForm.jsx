@@ -57,7 +57,7 @@ export default function EditProductForm() {
       });
 
       if (product.image_url) {
-        setPreviewImage(`http://localhost:5000${product.image_url}`);
+        setPreviewImage(`${product.image_url}`);
       }
     }
   }, [product]);

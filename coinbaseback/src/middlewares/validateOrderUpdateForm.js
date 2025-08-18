@@ -1,4 +1,5 @@
 import { OrderService } from "../services/order.service.js";
+import { updateOrderSchema } from "../schemas/order.schema.js";
 
 export async function validateOrderUpdateForm(req, res, next) {
   const id_order = Number(req.params.id_order);
@@ -6,49 +7,29 @@ export async function validateOrderUpdateForm(req, res, next) {
     return res.status(400).json({ error: "Invalid order ID" });
   }
 
-  const {
-    clientName,
-    clientEmail,
-    status,
-    trackingStatus,
-    deliveryAddress,
-    deliveryCity,
-    deliveryCountry,
-  } = req.body;
-
-  // Validar campos obligatorios
-  if (!clientName || !clientName.trim()) {
-    return res.status(400).json({ error: "Client name is required" });
-  }
-
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!clientEmail || !emailRegex.test(clientEmail)) {
-    return res.status(400).json({ error: "Valid client email is required" });
-  }
-
-  const validStatuses = [
-    "pending",
-    "cancelled",
-    "delivered",
-    "shipped",
-    "paid",
-  ];
-  if (status && !validStatuses.includes(status)) {
-    return res.status(400).json({ error: "Invalid status value" });
-  }
-
-  const validTracking = ["pending", "in_transit", "delivered"];
-  if (trackingStatus && !validTracking.includes(trackingStatus)) {
-    return res.status(400).json({ error: "Invalid tracking status" });
+  try {
+    // Validación de estructura con Zod
+    updateOrderSchema.parse(req.body);
+  } catch (error) {
+    return res
+      .status(400)
+      .json({ error: error.errors?.[0]?.message || "Invalid input" });
   }
 
   try {
-    // Obtener la orden original
     const order = await OrderService.getById(id_order);
     if (!order) {
       return res.status(404).json({ error: "Order not found" });
     }
 
+    if (!order.payment || !order.delivery) {
+      return res.status(400).json({
+        error:
+          "Order must have both payment and delivery assigned to be updated.",
+      });
+    }
+
+    // Reglas de negocio
     if (
       order.status === "delivered" ||
       order.status === "cancelled" ||
@@ -59,11 +40,11 @@ export async function validateOrderUpdateForm(req, res, next) {
       });
     }
 
-    // No permitir cambiar tracking si la orden está "pending"
     if (
       order.status === "pending" &&
-      trackingStatus &&
-      trackingStatus !== order.delivery?.status
+      req.body.status === "pending" &&
+      req.body.trackingStatus &&
+      req.body.trackingStatus !== order.delivery?.status
     ) {
       return res.status(400).json({
         error: "Cannot update tracking status while order is still pending",
@@ -75,16 +56,16 @@ export async function validateOrderUpdateForm(req, res, next) {
       order.status === "paid" &&
       paymentMethod !== "venmo" &&
       paymentMethod !== "zelle" &&
-      status &&
-      (status === "pending" || status === "cancelled")
+      req.body.status &&
+      (req.body.status === "pending" || req.body.status === "cancelled")
     ) {
       return res.status(400).json({
-        error: `Order status cannot be changed to '${status}' for payment method '${paymentMethod}' after payment`,
+        error: `Order status cannot be changed to '${req.body.status}' for payment method '${paymentMethod}' after payment`,
       });
     }
 
     req.id_order = id_order;
-    req.order = order; // en caso de que necesites usarla después en el controller
+    req.order = order;
     next();
   } catch (error) {
     console.error("Validation error:", error);

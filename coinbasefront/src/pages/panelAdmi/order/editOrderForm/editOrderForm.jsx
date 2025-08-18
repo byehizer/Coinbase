@@ -334,7 +334,7 @@ export default function EditOrderForm() {
                 className="flex items-center gap-4 border p-2 rounded bg-white"
               >
                 <img
-                  src={`http://localhost:5000${item.image}`}
+                  src={`${item.image}`}
                   alt={item.name}
                   className="w-16 h-16 object-cover rounded"
                 />
@@ -355,7 +355,7 @@ export default function EditOrderForm() {
 
             {order.receipt.endsWith(".pdf") ? (
               <a
-                href={`http://localhost:5000${order.receipt}`}
+                href={`${order.receipt}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-600 underline"
@@ -364,12 +364,12 @@ export default function EditOrderForm() {
               </a>
             ) : (
               <a
-                href={`http://localhost:5000${order.receipt}`}
+                href={`${order.receipt}`}
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 <img
-                  src={`http://localhost:5000${order.receipt}`}
+                  src={`${order.receipt}`}
                   alt="receipt"
                   className="max-w-sm max-h-50 border rounded shadow-md "
                 />

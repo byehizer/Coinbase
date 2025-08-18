@@ -22,13 +22,13 @@ orderRouter.get(
   authorization("admin"),
   OrderController.getById
 );
-orderRouter.post("/", validateCreateOrder, OrderController.create);
-orderRouter.put(
-  "/:id_order/status",
-  authenticate,
-  authorization("admin"),
-  OrderController.updateStatus
-);
+orderRouter.post("/",   async (req, res, next) => {
+    try {
+      await validateCreateOrder(req,res,next);
+    } catch (error) {
+      next(error);
+    }
+  }, OrderController.create);
 orderRouter.put(
   "/:id_order",
   authenticate,
@@ -72,3 +72,4 @@ orderRouter.post(
   OrderController.uploadReceipt
 );
 orderRouter.post("/public/:id", OrderController.publicgetbyid);
+

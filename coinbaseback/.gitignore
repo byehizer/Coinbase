@@ -27,3 +27,4 @@ uploads/*
 
 # Others
 .DS_Store
+config/

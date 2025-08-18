@@ -116,7 +116,6 @@ export class OrderService {
       });
 
       for (const item of items) {
-        console.log(item.image_url);
         await OrderDetailService.createTx(tx, {
           id_order: order.id,
           id_product: item.id,

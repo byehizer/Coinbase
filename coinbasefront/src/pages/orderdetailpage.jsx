@@ -59,7 +59,7 @@ export default function OrderDetailPage() {
       const data = await res.json();
 
       toast.success("Receipt uploaded successfully");
-      setReceiptUrl(`http://localhost:5000${data.receipt}`);
+      setReceiptUrl(`${data.receipt}`);
       setFile(null);
     } catch (err) {
       console.error(err);
@@ -92,7 +92,7 @@ export default function OrderDetailPage() {
               className="flex items-center gap-4 bg-gray-600 p-3 rounded-lg shadow-sm"
             >
               <img
-                src={`http://localhost:5000${prod.image}`}
+                src={`${prod.image}`}
                 alt={prod.name}
                 className="w-32 h-32 object-contain rounded"
               />

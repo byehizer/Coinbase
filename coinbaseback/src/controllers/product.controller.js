@@ -1,7 +1,10 @@
 import { ProductService } from "../services/product.service.js";
-import fs from "fs/promises";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
+import {
+  deleteFile,
+  uploadFromBuffer,
+} from "../services/googleStorage.service.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -40,17 +43,24 @@ export class ProductController {
   }
 
   static async create(req, res) {
-    const image_url = `/uploads/${req.file.filename}`;
     const { name, description, year, country_origin, price, stock } =
       req.validatedProduct;
+    const file = req.file;
 
     const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+
     if (req.file && !allowedTypes.includes(req.file.mimetype)) {
-      await fs.unlink(req.file.path);
       return res.status(400).json({ message: "Unsupported image format." });
     }
 
+    let image_url;
+
     try {
+      image_url = await uploadFromBuffer(
+        file.buffer,
+        file.originalname,
+        file.mimetype
+      );
       const newProduct = await ProductService.create({
         name,
         description,
@@ -66,12 +76,9 @@ export class ProductController {
         product: newProduct,
       });
     } catch (error) {
-      if (req.file?.path) {
-        try {
-          await fs.unlink(req.file.path);
-        } catch (err) {
-          console.error("Error deleting file after failure:", err.message);
-        }
+      if (image_url) {
+        const filename = path.basename(image_url);
+        await deleteFile(filename);
       }
 
       res.status(500).json({
@@ -81,7 +88,9 @@ export class ProductController {
   }
 
   static async update(req, res) {
-    const id_product = parseInt(req.params.id_product, 10);
+    const id_product = parseInt(req.params.id_product);
+    const file = req.file;
+
     if (isNaN(id_product)) {
       return res.status(400).json({ message: "Invalid product ID" });
     }
@@ -92,9 +101,13 @@ export class ProductController {
       const existingProduct = await ProductService.getById(id_product);
       let image_url = existingProduct.image_url;
       if (req.file) {
-        image_url = `/uploads/${req.file.filename}`;
+        image_url = await uploadFromBuffer(
+          file.buffer,
+          file.originalname,
+          file.mimetype
+        );
       }
-
+      
       const updatedProduct = await ProductService.update(id_product, {
         name,
         description,
@@ -104,7 +117,6 @@ export class ProductController {
         stock,
         image_url,
       });
-
       res.json({
         message: "Product updated successfully",
         product: updatedProduct,
@@ -121,7 +133,7 @@ export class ProductController {
 
     try {
       const product = await ProductService.getById(Number(id_product));
-      
+
       if (!product) {
         return res.status(404).json({ message: "Product not found" });
       }
@@ -131,15 +143,15 @@ export class ProductController {
       );
 
       if (relatedOrder === 0 && product.image_url) {
-        const imagePath = path.join(
-          "uploads",
-          path.basename(product.image_url)
-        );
+        const fileName = path.basename(product.image_url);
         try {
-          await fs.unlink(imagePath);
-          console.log("Imagen eliminada:", imagePath);
+          await deleteFile(fileName); // Elimina la imagen del bucket
+          console.log("✅ Imagen eliminada de GCS:", fileName);
         } catch (err) {
-          console.error("No se pudo eliminar la imagen:", err.message);
+          console.error(
+            "⚠️ No se pudo eliminar la imagen de GCS:",
+            err.message
+          );
         }
       }
 

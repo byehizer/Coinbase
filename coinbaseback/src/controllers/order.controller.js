@@ -9,6 +9,12 @@ import {
 import dotenv from "dotenv";
 import Stripe from "stripe";
 import { ProductService } from "../services/product.service.js";
+import path from "path";
+import fs from "fs";
+import {
+  deleteFile,
+  uploadFromBuffer,
+} from "../services/googleStorage.service.js";
 
 dotenv.config();
 
@@ -45,44 +51,42 @@ export class OrderController {
         return res.status(404).json({ error: "Order not found" });
       }
 
-      // Verificar que el email coincida
-      if (order.email !== email) {
+      if (order.client_email !== email) {
         return res
           .status(403)
           .json({ error: "Unauthorized: Email does not match order" });
       }
 
-      // Verificar estado del pago
-      const payment = await PaymentService.getByOrderId(orderId);
+      const payment = await PaymentService.findByOrderId(orderId);
       if (!payment) {
         return res.status(404).json({ error: "Payment not found" });
       }
 
-      if (["paid", "cancel"].includes(payment.status)) {
+      if (["approved", "rejected"].includes(payment.status)) {
         return res.status(400).json({
           error: `Cannot upload receipt. Current payment status: ${payment.status}`,
         });
       }
 
-      if (order.payment?.receipt) {
-        const oldPath = path.join(
-          "uploads",
-          path.basename(order.payment.receipt)
-        );
-        if (fs.existsSync(oldPath)) {
-          fs.unlinkSync(oldPath);
-        }
+      if (payment.receipt) {
+        const filename = path.basename(payment.receipt);
+        await deleteFile(filename);
       }
 
       // Subir comprobante
-      const fileUrl = `/uploads/${file.filename}`;
+      const uploadedUrl = await uploadFromBuffer(
+        file.buffer,
+        file.originalname,
+        file.mimetype
+      );
+
       const updatedPayment = await PaymentService.updateReceipt(
         orderId,
-        fileUrl
+        uploadedUrl
       );
 
       res.json({
-        receipt: fileUrl,
+        receipt: uploadedUrl,
         message: "Receipt uploaded successfully",
         payment: updatedPayment,
       });
@@ -107,7 +111,9 @@ export class OrderController {
 
       await OrderService.updateStatus(order.id, "cancelled");
 
-      await PaymentService.update(Number(order.id), { status: "rejected" });
+      await PaymentService.updateByOrderId(Number(order.id), {
+        status: "rejected",
+      });
 
       await sendRejectionEmail({
         id: order.id,
@@ -222,7 +228,7 @@ export class OrderController {
       }
 
       // Marcar pago como aprobado
-      await PaymentService.update(order.id, { status: "approved" });
+      await PaymentService.updateByOrderId(order.id, { status: "approved" });
 
       // (Opcional) enviar email de confirmación al cliente
       await sendStripeConfirmationEmail({
@@ -240,7 +246,6 @@ export class OrderController {
 
   static async create(req, res) {
     try {
-      console.log(req.body);
       const newOrder = await OrderService.create(req.body);
 
       await sendManualPaymentInstructions({
@@ -248,8 +253,6 @@ export class OrderController {
         client_email: newOrder.client_email,
         clientName: newOrder.client_name,
       });
-
-      console.log(newOrder);
       res
         .status(201)
         .json({ message: "Order created successfully", order: newOrder });
@@ -258,27 +261,6 @@ export class OrderController {
       res
         .status(500)
         .json({ error: "Error creating order", details: error.message });
-    }
-  }
-
-  static async updateStatus(req, res) {
-    try {
-      const { status } = req.body;
-      const validStatuses = ["pending", "paid", "shipped", "delivered"];
-
-      if (!validStatuses.includes(status)) {
-        return res.status(400).json({ error: "Invalid status" });
-      }
-
-      const updatedOrder = await OrderService.updateStatus(
-        Number(req.params.id_order),
-        status
-      );
-      res.json({ message: "Order status updated", order: updatedOrder });
-    } catch (error) {
-      res
-        .status(500)
-        .json({ error: "Error updating order status", details: error.message });
     }
   }
 
@@ -302,9 +284,26 @@ export class OrderController {
         status: status || order.status,
       });
 
+      const prevStatus = order.status;
+      const newStatus = status || prevStatus;
+
       if (status === "pending" && order.payment?.status !== "pending") {
-        await PaymentService.update(order.id, { status: "pending" });
+        await PaymentService.updateByOrderId(order.id, { status: "pending" });
       }
+
+      if (
+        prevStatus === "pending" &&
+        (newStatus === "paid" ||
+          newStatus === "shipped" ||
+          newStatus === "delivered")
+      ) {
+        await PaymentService.updateByOrderId(order.id, { status: "approved" });
+      }
+
+      if (newStatus === "cancelled") {
+        await PaymentService.updateByOrderId(order.id, { status: "rejected" });
+      }
+
       if (order.id_delivery) {
         await DeliveryService.update(order.id_delivery, {
           address: deliveryAddress,
@@ -314,12 +313,9 @@ export class OrderController {
         });
       }
 
-      const prevStatus = order.status;
-      const newStatus = status || prevStatus;
       const shouldRevertStock =
         ["paid", "shipped"].includes(prevStatus) &&
         ["cancelled", "pending"].includes(newStatus);
-      console.log(shouldRevertStock);
       if (shouldRevertStock) {
         const orderItems = await OrderService.getOrderItems(id_order);
         for (const item of orderItems) {
@@ -341,6 +337,18 @@ export class OrderController {
   static async delete(req, res) {
     try {
       const id_order = Number(req.params.id_order);
+      console.log(id_order);
+      if (!id_order || isNaN(id_order)) {
+        
+        return res.status(400).json({
+          error: "El id de la orden debe ser un número válido",
+        });
+      }
+      if(!(await OrderService.getById(id_order))){
+          return res.status(404).json({
+          error: "Order Not Found",
+        });
+      }
       const deleted = await OrderService.deleteCascade(id_order);
 
       res.json({

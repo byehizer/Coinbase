@@ -73,4 +73,11 @@ export class OrderDetailService {
       where: { id_order },
     });
   }
+
+  static async updateImageUrlByProductId(productId, newUrl) {
+  return prisma.orderDetail.updateMany({
+    where: { id_product: productId },
+    data: { product_image_url: newUrl },
+  });
+}
 }

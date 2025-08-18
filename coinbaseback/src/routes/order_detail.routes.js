@@ -9,7 +9,7 @@ export const orderDetailRouter = Router();
 //Vamos a tener que agregarle los middlewares cuando el token al iniciar sesion funcione en el frontend, porque en el backend ya esta creado
 
 
-orderDetailRouter.get(
+/*orderDetailRouter.get(
   "/",
   authenticate,
   authorization("admin"),
@@ -42,6 +42,6 @@ orderDetailRouter.delete(
   authenticate,
   authorization("admin"),
   OrderDetailController.delete
-);
+);*/
 
 

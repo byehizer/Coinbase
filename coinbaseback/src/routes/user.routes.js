@@ -6,7 +6,7 @@ import { authorization } from "../middlewares/authorization.js";
 export const usersRouter = Router();
 
 
-usersRouter.get("/", authenticate, authorization("admin"), UserController.getAll);
+/*usersRouter.get("/", authenticate, authorization("admin"), UserController.getAll);
 usersRouter.get("/:id_user", UserController.getById);
 
-usersRouter.post("/", authenticate, authorization("admin"),UserController.create);
+usersRouter.post("/", authenticate, authorization("admin"),UserController.create);*/

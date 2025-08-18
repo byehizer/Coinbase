@@ -1,6 +1,8 @@
 import express from "express";
 import morgan from "morgan";
 import cors from "cors";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import bodyParser from "body-parser";
 import { productRouter } from "./routes/product.routes.js";
 import { orderRouter } from "./routes/order.routes.js";
@@ -10,23 +12,45 @@ import { deliveryRouter } from "./routes/delivery.routes.js";
 import { messageRouter } from "./routes/message.routes.js";
 import { usersRouter } from "./routes/user.routes.js";
 import { authRouter } from "./routes/auth.routes.js";
+import { stripeRouter } from "./routes/stripe.routes.js";
+import { StripeController } from "./controllers/stripe.controller.js";
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "../docs/swagger.js";
 import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
-import { stripeRouter } from "./routes/stripe.routes.js";
-import { StripeController } from "./controllers/stripe.controller.js";
-dotenv.config();
+
+const envFile = process.env.NODE_ENV === "test" ? ".env.test" : ".env";
+dotenv.config({ path: envFile });
 
 const app = express();
-const PORT = 5000; //La DB de google nos va a dar un puerto, asi que lo vamos a tener que cambiar mas adelante
+const PORT = 5000;
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// Seguridad: Helmet y Rate Limiting
+app.use(helmet());
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 100, // 100 requests por IP cada 15 minutos
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    status: 429,
+    message: "Demasiadas solicitudes. Intenta nuevamente más tarde.",
+  },
+});
+app.use(limiter);
+
+// Webhook Stripe (antes de express.json)
 app.post(
   "/api/stripe/webhook",
-  bodyParser.raw({ type: "application/json" }), // 👈 evita que express.json rompa la firma de Stripe
+  bodyParser.raw({ type: "application/json" }),
   StripeController.handleWebhook
 );
 
+// Middlewares generales
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
@@ -36,20 +60,21 @@ app.use(
   })
 );
 
+// Carpeta pública para imágenes (local)
+//app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+// Documentación Swagger
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// Configuración de carpeta pública
-app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
-
-app.get("/", (request, response) => {
-  response.json({
+// Ruta raíz
+app.get("/", (req, res) => {
+  res.json({
     mensaje: "Hola Mundo",
     fecha: new Date().toLocaleDateString(),
   });
 });
 
-// Rutas
+// Rutas API
 app.use("/api/products", productRouter);
 app.use("/api/orders", orderRouter);
 app.use("/api/order-details", orderDetailRouter);
@@ -60,13 +85,26 @@ app.use("/api/users", usersRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/stripe", stripeRouter);
 
-const server = app.listen(PORT, () => {
-  console.log(`Servidor corriendo en puerto ${PORT}`);
+
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("Unhandled Rejection:", reason);
+});
+process.on("uncaughtException", (error) => {
+  console.error("Uncaught Exception:", error);
 });
 
-server.on("error", (err) => {
-  if (err.code === "EADDRINUSE") {
-    console.error(`Puerto ${PORT} ya está en uso.`);
-    process.exit(1);
-  }
-});
+// Inicio servidor
+if (process.env.NODE_ENV !== "test") {
+  const server = app.listen(PORT, () => {
+    console.log(`Servidor corriendo en puerto ${PORT}`);
+  });
+
+  server.on("error", (err) => {
+    if (err.code === "EADDRINUSE") {
+      console.error(`Puerto ${PORT} ya está en uso.`);
+      process.exit(1);
+    }
+  });
+}
+
+export default app;

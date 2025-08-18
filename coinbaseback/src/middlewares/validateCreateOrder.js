@@ -1,46 +1,49 @@
-export function validateCreateOrder(req, res, next) {
-  const {
-    client_name,
-    client_email,
-    total,
-    payment_method,
-    address,
-    city,
-    country,
-    items,
-  } = req.body;
+import { CreateOrderSchema } from "../schemas/order.schema.js";
+import { ProductService } from "../services/product.service.js";
 
-  if (!client_name || client_name.trim().length < 3) {
-    return res.status(400).json({ error: "Name is required (min 3 characters)" });
-  }
+export async function validateCreateOrder(req, res, next) {
+  try {
+    // Validación estructural con Zod
+    const validatedData = CreateOrderSchema.parse(req.body);
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!client_email || !emailRegex.test(client_email)) {  
-    return res.status(400).json({ error: "Valid email is required" });
-  }
+    // Validación contra productos reales
+    for (const item of validatedData.items) {
+      const product = await ProductService.getById(item.id);
+      if (!product) {
+        return res.status(400).json({ error: `Product with ID ${item.id} not found` });
+      }
 
-  if (!total || isNaN(total) || total <= 0) {
-    return res.status(400).json({ error: "Total amount must be greater than 0" });
-  }
+      if (
+        product.name !== item.name ||
+        Math.abs(product.price - item.price) > 0.01 ||
+        product.image_url !== item.image_url
+      ) {
+        return res.status(400).json({
+          error: `Product data mismatch for ID ${item.id}`,
+          expected: {
+            name: product.name,
+            price: product.price,
+            image_url: product.image_url,
+          },
+          received: {
+            name: item.name,
+            price: item.price,
+            image_url: item.image_url,
+          },
+        });
+      }
+    }
 
-  if (!payment_method) {
-    return res.status(400).json({ error: "Payment method is required" });
-  }
+    // Todo OK
+    next();
+  } catch (err) {
+    if (err.name === "ZodError") {
+      return res.status(400).json({
+        error: "Validation failed",
+        issues: err.errors.map((e) => ({ field: e.path[0], message: e.message })),
+      });
+    }
 
-  if (!address || address.trim().length < 5) {
-    return res.status(400).json({ error: "Address must be at least 5 characters" });
+    return res.status(500).json({ error: "Internal validation error" });
   }
-
-  if (!city) {
-    return res.status(400).json({ error: "City is required" });
-  }
-
-  if (!country || !/^[a-zA-Z\s]+$/.test(country)) {
-    return res.status(400).json({ error: "Valid country is required" });
-  }
-
-  if (!Array.isArray(items) || items.length === 0) {
-    return res.status(400).json({ error: "At least one product is required" });
-  }
-  next();
 }

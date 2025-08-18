@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { ProductController } from "../controllers/product.controller.js";
-import { authorization } from "../middlewares/authorization.js";
 import { authenticate } from "../middlewares/authenticate.js";
+import { authorization } from "../middlewares/authorization.js";
 import upload from "../middlewares/upload.js";
 import { validateProduct } from "../middlewares/validateProducts.js";
 
@@ -21,7 +21,7 @@ productRouter.post(
       await validateProduct(req, res, next);
     } catch (error) {
       next(error);
-    }
+    } 
   },
   ProductController.create
 );
@@ -30,7 +30,7 @@ productRouter.put(
   authenticate,
   authorization("admin"),
   upload.single("image"),
-   async (req, res, next) => {
+  async (req, res, next) => {
     try {
       await validateProduct(req, res, next);
     } catch (error) {
