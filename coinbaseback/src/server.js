@@ -69,7 +69,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // Ruta raíz
 app.get("/", (req, res) => {
   res.json({
-    mensaje: "Hola Mundo",
+    mensaje: "Hola",
     fecha: new Date().toLocaleDateString(),
   });
 });
