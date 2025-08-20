@@ -27,6 +27,7 @@ jobs:
 
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/Coinbase
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
 
     defaults:
       run:
