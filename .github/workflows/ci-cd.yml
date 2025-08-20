@@ -14,8 +14,13 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
-    env:
-      JWT_SECRET: ${{ secrets.JWT_SECRET }} # tu secret de JWT
+    env: # tu secret de JWT
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+      STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+      FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+      SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+      SENDGRID_SENDER: ${{ secrets.SENDGRID_SENDER }}
       NODE_ENV: test # importante para que se use el schema test y SQLite
 
     defaults:
