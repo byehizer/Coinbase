@@ -14,24 +14,13 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: Coinbase
-        ports:
-          - 5432:5432
-        options: --health-cmd "pg_isready -U postgres" --health-interval 10s --health-timeout 5s --health-retries 5
-
     env:
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/Coinbase
-      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }} # tu secret de JWT
+      NODE_ENV: test # importante para que se use el schema test y SQLite
 
     defaults:
       run:
-        working-directory: coinbaseback # 👈 siempre corre dentro de coinbaseback
+        working-directory: coinbaseback # siempre corre dentro de coinbaseback
 
     steps:
       - name: Checkout repo
@@ -48,10 +37,10 @@ jobs:
         run: npm install
 
       - name: Prisma Generate
-        run: npx prisma generate
+        run: npx prisma generate --schema=prisma/schema.test.prisma
 
-      - name: Apply migrations
-        run: npx prisma migrate deploy
+      - name: Push Prisma schema to SQLite
+        run: npx prisma db push --schema=prisma/schema.test.prisma
 
       - name: Run tests
         run: npx vitest run
