@@ -4,8 +4,8 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "test": "vitest",
-    "test:ui": "vitest --ui",
+  "test": "cross-env NODE_ENV=test prisma db push --schema=prisma/schema.test.prisma && vitest",
+  "test:ui": "cross-env NODE_ENV=test prisma db push --schema=prisma/schema.test.prisma && vitest --ui",
     "dev": "nodemon  src/server.js"
   },
   "keywords": [],
