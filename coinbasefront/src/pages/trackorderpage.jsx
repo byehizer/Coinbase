@@ -22,7 +22,7 @@ export default function TrackOrderPage() {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/orders/public/${orderIdInput.trim()}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/orders/public/${orderIdInput.trim()}`,
         {
           method: "POST",
           headers: {

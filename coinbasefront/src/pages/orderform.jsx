@@ -59,7 +59,7 @@ export function OrderForm() {
 
     try {
       if (formData.payment_method === "Stripe") {
-        const res = await fetch("http://localhost:5000/api/stripe/checkout", {
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/stripe/checkout`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -72,7 +72,7 @@ export function OrderForm() {
         clearShoppingCart();
       } else {
         // 2. Orden para Venmo/Zelle
-        const res = await fetch("http://localhost:5000/api/orders", {
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/orders`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

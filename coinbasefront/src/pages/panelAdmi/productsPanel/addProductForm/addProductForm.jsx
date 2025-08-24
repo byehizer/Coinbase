@@ -96,7 +96,7 @@ export function AddProductForm() {
     formData.append("image", imageFile);
 
     try {
-      const response = await fetch("http://localhost:5000/api/products", {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/products`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

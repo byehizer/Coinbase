@@ -48,7 +48,7 @@ export default function OrderDetailPage() {
       formData.append("image", file); // <-- debe coincidir con backend
 
       const res = await fetch(
-        `http://localhost:5000/api/orders/${order.id}/upload-receipt`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/orders/${order.id}/upload-receipt`,
         {
           method: "POST",
           body: formData,

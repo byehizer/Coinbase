@@ -28,7 +28,7 @@ export default function EditOrderForm() {
 
     (async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/orders/${id}`, {
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/orders/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.status === 401) return guard();
@@ -121,7 +121,7 @@ export default function EditOrderForm() {
     };
 
     try {
-      const res = await fetch(`http://localhost:5000/api/orders/${order.id}`, {
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/orders/${order.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -167,7 +167,7 @@ export default function EditOrderForm() {
     if (guard()) return;
     try {
       const res = await fetch(
-        `http://localhost:5000/api/orders/${order.id}/${action}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/orders/${order.id}/${action}`,
         {
           method: "PATCH",
           headers: { Authorization: `Bearer ${token}` },
@@ -207,7 +207,7 @@ export default function EditOrderForm() {
     if (action === "delete") {
       try {
         const res = await fetch(
-          `http://localhost:5000/api/orders/${order.id}`,
+          `${import.meta.env.VITE_BACKEND_URL}/api/orders/${order.id}`,
           {
             method: "DELETE",
             headers: { Authorization: `Bearer ${token}` },

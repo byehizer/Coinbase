@@ -32,7 +32,7 @@ export function AddOrdersForm() {
         e.preventDefault();
 
         try {
-            const deliveryRes = await fetch("http://localhost:5000/api/deliveries", {
+            const deliveryRes = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/deliveries`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -50,7 +50,7 @@ export function AddOrdersForm() {
             paymentFormData.append("method", formData.method_payment);
             if (receipt) paymentFormData.append("receipt", receipt);
 
-            const paymentRes = await fetch("http://localhost:5000/api/payments", {
+            const paymentRes = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/payments`, {
                 method: "POST",
                 body: paymentFormData,
             });
@@ -58,7 +58,7 @@ export function AddOrdersForm() {
             console.log("Payment response:", paymentData);
             if (!paymentRes.ok) throw new Error(paymentData.message);
 
-            const orderRes = await fetch("http://localhost:5000/api/orders", {
+            const orderRes = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/orders`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

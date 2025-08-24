@@ -21,7 +21,7 @@ export function MessagesPanel() {
 
     (async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/messages", {
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/messages`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
@@ -43,7 +43,7 @@ export function MessagesPanel() {
     if (!confirm) return;
 
     try {
-      await fetch(`http://localhost:5000/api/messages/${id}`, {
+      await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/messages/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });

@@ -31,12 +31,12 @@ export function SearchBar() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/products");
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/products`);
         const backendProductsRaw = await response.json();
 
         const backendProducts = backendProductsRaw.map((product) => ({
           ...product,
-          image_url: `http://localhost:5000${product.image_url}`,
+          image_url: `${import.meta.env.VITE_BACKEND_URL}${product.image_url}`,
           price: Number(product.price),
           year: Number(product.year),
           stock: Number(product.stock),

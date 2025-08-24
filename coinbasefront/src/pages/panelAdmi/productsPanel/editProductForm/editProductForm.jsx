@@ -103,7 +103,7 @@ export default function EditProductForm() {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/products/${product.id}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/products/${product.id}`,
         {
           method: "PUT",
           headers: {

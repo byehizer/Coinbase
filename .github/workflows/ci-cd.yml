@@ -49,3 +49,25 @@ jobs:
 
       - name: Run tests
         run: npx vitest run
+
+  cd:                             
+    name: CD - Deploy to Railway
+    runs-on: ubuntu-latest
+    needs: ci
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    defaults:
+      run:
+        working-directory: coinbaseback
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Railway
+        run: npm install -g @railway/cli
+
+      - name: Deploy to Railway
+        run: railway up --service practical-light --ci
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}

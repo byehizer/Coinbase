@@ -20,7 +20,7 @@ export function OrdersPanel() {
 
     (async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/orders", {
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/orders`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -45,7 +45,7 @@ export function OrdersPanel() {
     if (!confirm) return;
 
     try {
-      await fetch(`http://localhost:5000/api/orders/${id}`, {
+      await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/orders/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
