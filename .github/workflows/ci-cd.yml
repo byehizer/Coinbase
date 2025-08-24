@@ -53,7 +53,7 @@ jobs:
   cd:                             
     name: CD - Deploy to Railway
     runs-on: ubuntu-latest
-    needs: ci
+    needs: build-and-test 
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     defaults:
