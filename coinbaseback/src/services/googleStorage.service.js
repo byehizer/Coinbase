@@ -4,11 +4,21 @@ import { v4 as uuidv4 } from "uuid";
 import dotenv from "dotenv";
 dotenv.config();
 
-const keyPath = path.join(process.cwd(), "config", "clave-gcp.json");
+let storage;
 
-const storage = new Storage({
-  keyFilename: keyPath,
-});
+if (process.env.GOOGLE_CLOUD_KEY) {
+  
+  const credentials = JSON.parse(process.env.GOOGLE_CLOUD_KEY);
+  storage = new Storage({
+    projectId: credentials.project_id,
+    credentials,
+  });
+} else {
+  const keyPath = path.join(process.cwd(), "config", "clave-gcp.json");
+  storage = new Storage({
+    keyFilename: keyPath,
+  });
+}
 
 const bucketName = "coinbase_storage-2025"; // reemplazá con el nombre real
 const bucket = storage.bucket(bucketName);
@@ -27,7 +37,6 @@ export async function uploadFromBuffer(buffer, originalName, mimetype) {
     blobStream.on("error", (err) => reject(err));
 
     blobStream.on("finish", async () => {
-
       const publicUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
       resolve(publicUrl);
     });
