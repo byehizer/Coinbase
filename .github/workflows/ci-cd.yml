@@ -56,10 +56,6 @@ jobs:
     needs: build-and-test 
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
-    defaults:
-      run:
-        working-directory: coinbaseback
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
