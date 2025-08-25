@@ -12,7 +12,7 @@ const options = {
     },
     servers: [
       {
-        url: "http://localhost:5000/api", // cambia si tenés otra baseURL
+        url: "https://practical-light-production.up.railway.app/api", // cambia si tenés otra baseURL
       },
     ],
 
