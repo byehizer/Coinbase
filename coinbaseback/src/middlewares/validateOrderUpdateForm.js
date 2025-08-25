@@ -54,8 +54,8 @@ export async function validateOrderUpdateForm(req, res, next) {
     const paymentMethod = order.payment?.method;
     if (
       order.status === "paid" &&
-      paymentMethod !== "venmo" &&
-      paymentMethod !== "zelle" &&
+      paymentMethod !== "Venmo" &&
+      paymentMethod !== "Zelle" &&
       req.body.status &&
       (req.body.status === "pending" || req.body.status === "cancelled")
     ) {

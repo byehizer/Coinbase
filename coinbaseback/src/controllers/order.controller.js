@@ -323,6 +323,15 @@ export class OrderController {
         }
       }
 
+      const shouldDecreaseStock =
+        prevStatus === "pending" && ["paid", "shipped"].includes(newStatus);
+      if (shouldDecreaseStock) {
+        const orderItems = await OrderService.getOrderItems(id_order);
+        for (const item of orderItems) {
+          await ProductService.decreaseStock(item.id_product, item.quantity);
+        }
+      }
+
       const fullOrder = await OrderService.getById(id_order);
       return res.json(fullOrder);
     } catch (error) {
@@ -339,13 +348,12 @@ export class OrderController {
       const id_order = Number(req.params.id_order);
       console.log(id_order);
       if (!id_order || isNaN(id_order)) {
-        
         return res.status(400).json({
           error: "El id de la orden debe ser un número válido",
         });
       }
-      if(!(await OrderService.getById(id_order))){
-          return res.status(404).json({
+      if (!(await OrderService.getById(id_order))) {
+        return res.status(404).json({
           error: "Order Not Found",
         });
       }
