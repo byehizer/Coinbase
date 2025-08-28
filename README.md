@@ -12,22 +12,22 @@ Cuenta además con un **panel de administración protegido** donde se gestionan 
 * [🚀 Tecnologías Utilizadas](#-tecnologías-utilizadas)  
 * [📦 Características Principales](#-características-principales)  
 * [📸 Capturas de Pantalla](#-capturas-de-pantalla)  
-* [🛠️ Instalación y Configuración](#-instalación-y-configuración)  
-* [🐳 Docker (opcional)](#-docker-opcional)  
-* [🧱 Migraciones y Seeds](#-migraciones-y-seeds)  
-* [📡 Webhooks y Ngrok](#-webhooks-y-ngrok)  
+* [🛠️ Instalación y Configuración](#%EF%B8%8F-instalación-y-configuración)  
 * [🧩 Diagrama de Arquitectura](#-diagrama-de-arquitectura)  
-* [📬 API Docs](#-api-docs)  
+* [📬 API Docs](#-api-docs)
+* [🧪 Tests](#-tests)  
 * [🧠 Mejoras Futuras](#-mejoras-futuras)  
 * [👤 Autor](#-autor)  
 
 ---
 
 ## 🌍 Demo Online  
-- **Frontend**: [Coinbase en Vercel](https://coinbase-sandy-xi.vercel.app)  
-- **Backend / API Docs**: [Coinbase en Railway](https://practical-light-production.up.railway.app)  
+[![Frontend Vercel](https://img.shields.io/badge/Frontend-Vercel-blue?logo=vercel)](https://coinbase-sandy-xi.vercel.app)  
+[![Backend Railway](https://img.shields.io/badge/Backend-Railway-green?logo=railway)](https://practical-light-production.up.railway.app)  
 
 🔑 **Panel Admin**  
+Se accede desde:    https://coinbase-sandy-xi.vercel.app/admin
+
 - Usuario: `admin@admin.com`  
 - Contraseña: `admin123`  
 
@@ -35,11 +35,10 @@ Cuenta además con un **panel de administración protegido** donde se gestionan 
 
 ## 🚀 Tecnologías Utilizadas
 
-* **Frontend**: React.js, Tailwind CSS, Fetch API  
-* **Backend**: Node.js con Express, JWT (panel admin), Zod, Multer, SendGrid, Stripe, Swagger/OpenAPI  
-* **Base de Datos**: PostgreSQL, Prisma ORM  
-* **Arquitectura**: Clean Architecture, estructura modular (controllers, services, routes, middlewares)  
-* **DevOps**: CI/CD con GitHub Actions, Docker, Railway + Vercel (deploy)  
+- **Frontend**: ![React](https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB) ![Tailwind](https://img.shields.io/badge/Tailwind_CSS-38B2AC?logo=tailwind-css&logoColor=white)
+- **Backend**: ![Node.js](https://img.shields.io/badge/Node.js-339933?logo=node.js&logoColor=white) ![Express](https://img.shields.io/badge/Express-000000?logo=express&logoColor=white) ![JWT](https://img.shields.io/badge/JWT-black?logo=JSON%20web%20tokens)  
+- **Base de Datos**: ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?logo=postgresql&logoColor=white) ![Prisma](https://img.shields.io/badge/Prisma-2D3748?logo=prisma&logoColor=white)  
+- **DevOps**: ![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white) ![Railway](https://img.shields.io/badge/Railway-0B0D0E?logo=railway&logoColor=white) ![Vercel](https://img.shields.io/badge/Vercel-000000?logo=vercel&logoColor=white)   
 
 ---
 
@@ -60,41 +59,37 @@ Cuenta además con un **panel de administración protegido** donde se gestionan 
 ## 📸 Capturas de Pantalla  
 
 _(Puedes añadir acá imágenes o GIFs como en tu portfolio)_  
-- Vista catálogo y carrito  
-- Checkout con Stripe  
-- Confirmación de compra  
+- Vista catálogo y carrito
+  <img width="1904" height="944" alt="image" src="https://github.com/user-attachments/assets/48bde10d-6524-458a-a9ea-cb052da57bd4" />
+- Checkout con Stripe
+  <img width="1141" height="896" alt="image" src="https://github.com/user-attachments/assets/08410b02-cc07-4c32-984a-3e6fa1628752" />
+- Confirmación de compra
+  <img width="1904" height="940" alt="image" src="https://github.com/user-attachments/assets/a82103cc-aac4-452a-af36-5273a825d1dd" />
 - Panel de administración  
+  <img width="1918" height="941" alt="image" src="https://github.com/user-attachments/assets/e76e8be5-9f62-4b88-9cfd-6cf784bd5504" />
 
 ---
 
 ## 🛠️ Instalación y Configuración
 
+1. **Clonar el repositorio**
 ```bash
-# Clonar el repositorio
 git clone https://github.com/byehizer/Coinbase.git
-
-# Instalar dependencias backend
-cd backend
-npm install
-
-# Instalar dependencias frontend
-cd ../frontend
-npm install
-
-# Crear archivo .env con las variables necesarias
-
-# Iniciar backend
-cd backend
-npm run dev
-
-# Iniciar frontend
-cd ../frontend
-npm run dev
+cd Coinbase
 ```
 
-### Variables de entorno necesarias
+2. **Levantar la base de datos con Docker** (si usas PostgreSQL en contenedor)
+```bash
+docker-compose up -d
+```
+Para detener los servicios:
+```bash
+docker-compose down
+```
 
-```.env
+3. **Crear el archivo `.env` en la carpeta `backend/`**  
+(asegúrate de que exista antes de correr migraciones)
+```env
 DATABASE_URL=postgresql://usuario:contraseña@localhost:5432/coinbase
 STRIPE_SECRET_KEY=tu_clave_secreta_de_stripe
 SENDGRID_API_KEY=tu_clave_de_sendgrid
@@ -105,34 +100,38 @@ GOOGLE_CLOUD_KEY=Archivo de Google Cloud
 BUCKET_NAME=Nombre-del-bucket
 ```
 
----
-
-## 🐳 Docker (opcional)
-
+4. **Instalar dependencias**
 ```bash
-docker-compose up -d
+# Backend
+cd backend
+npm install
+
+# Frontend
+cd ../frontend
+npm install
 ```
 
-Para detener los servicios:
-
+5. **Ejecutar migraciones y seeds**  
+Esto crea las tablas y (opcionalmente) inserta datos iniciales.
 ```bash
-docker-compose down
-```
-
----
-
-## 🧱 Migraciones y Seeds
-
-```bash
+cd backend
 npx prisma migrate dev
-npx prisma db seed
+npx prisma db seed   # opcional, solo si quieres datos de ejemplo
 ```
 
----
+6. **Iniciar los servidores**
+```bash
+# Backend
+cd backend
+npm run dev
 
-## 📡 Webhooks y Ngrok
+# Frontend
+cd ../frontend
+npm run dev
+```
+##  Webhooks y Ngrok
 
-Para pruebas locales con Stripe:
+Para pruebas locales con Stripe, es necesario tener instalado ngrok: https://ngrok.com/
 
 ```bash
 ngrok http 5000
@@ -186,4 +185,30 @@ https://practical-light-production.up.railway.app/api-docs
 
 * **Ehizer Jesus Valero Bastidas**  
 * GitHub: [byehizer](https://github.com/byehizer)  
-* Proyecto personal full-stack  
+* Proyecto personal full-stack
+
+---
+
+## 🧪 Tests
+
+Los tests se ejecutan con **Vitest**.  
+Para mantener aislada la base de datos de producción se utiliza **SQLite** como motor en los tests.  
+
+1. Crear un archivo `.env.test` en la carpeta `backend/` con algo como:  
+```env
+DATABASE_URL="file:./dev.test.db"
+JWT_SECRET=clave_para_jwt
+```
+
+2. Generar el schema de prueba:  
+```bash
+cd backend
+npx prisma migrate dev --name init --schema=prisma/schema.test.prisma
+```
+
+3. Ejecutar los tests:  
+```bash
+npm run test
+```
+
+El script `test` usa Vitest en modo secuencial (`--runInBand`) para evitar conflictos con la base de datos.  
