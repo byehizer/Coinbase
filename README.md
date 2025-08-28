@@ -96,7 +96,7 @@ SENDGRID_API_KEY=tu_clave_de_sendgrid
 SENDGRID_SENDER=ejemplo@ejemplo.com
 JWT_SECRET=clave_para_jwt
 FRONTEND_URL=http://localhost:3000
-GOOGLE_CLOUD_KEY=Archivo de Google Cloud
+GOOGLE_CLOUD_KEY='{"type":"service_account","project_id":"...","private_key_id":"...","private_key":"...","client_email":"...","client_id":"...","auth_uri":"...","token_uri":"...","auth_provider_x509_cert_url":"...","client_x509_cert_url":"..."}'
 BUCKET_NAME=Nombre-del-bucket
 ```
 
