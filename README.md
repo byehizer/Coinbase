@@ -177,15 +177,7 @@ https://practical-light-production.up.railway.app/api-docs
 
 * Manejo avanzado de errores con `boom`  
 * Logs estructurados y monitoreo con Sentry  
-* Uso de DTOs 
-
----
-
-## 👤 Autor
-
-* **Ehizer Jesus Valero Bastidas**  
-* GitHub: [byehizer](https://github.com/byehizer)  
-* Proyecto personal full-stack
+* Uso de DTOs
 
 ---
 
@@ -212,3 +204,13 @@ npm run test
 ```
 
 El script `test` usa Vitest en modo secuencial (`--runInBand`) para evitar conflictos con la base de datos.  
+
+---
+
+## 👤 Autor
+
+* **Ehizer Jesus Valero Bastidas**  
+* GitHub: [byehizer](https://github.com/byehizer)  
+* Proyecto personal full-stack
+
+
