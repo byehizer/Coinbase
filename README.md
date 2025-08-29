@@ -200,10 +200,10 @@ npx prisma migrate dev --name init --schema=prisma/schema.test.prisma
 
 3. Ejecutar los tests:  
 ```bash
-npm run test
+npx run vitest
 ```
 
-El script `test` usa Vitest en modo secuencial (`--runInBand`) para evitar conflictos con la base de datos.  
+El script `vitest` usa Vitest en modo secuencial (`--runInBand`) para evitar conflictos con la base de datos.  
 
 ---
 
